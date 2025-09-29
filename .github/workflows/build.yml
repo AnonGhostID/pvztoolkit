@@ -29,7 +29,7 @@ jobs:
       - name: Compute cache key
         id: cache-key
         run: |
-          echo "fltk_key=${{ inputs.fltk_ref }}-x86-static" >> "$GITHUB_OUTPUT"
+          echo "fltk_key=${{ inputs.fltk_ref }}-x86-static-${{ inputs.config }}" >> "$GITHUB_OUTPUT"
 
       - name: Cache FLTK install
         id: cache-fltk
@@ -64,7 +64,20 @@ jobs:
             -D FLTK_USE_SYSTEM_LIBJPEG=OFF \
             -D FLTK_USE_SYSTEM_LIBPNG=OFF \
             -D FLTK_USE_SYSTEM_ZLIB=OFF
-          cmake --build fltk-build --config "${{ inputs.config }}" --target install -- /m
+          cmake --build fltk-build --config "${{ inputs.config }}" --target install --parallel
+
+      - name: Resolve FLTK_DIR
+        run: |
+          set -euo pipefail
+          FLTK_INSTALL_DIR="${RUNNER_TEMP}/fltk-1.4.0-msvc-static-x86"
+          FLTK_DIR_FOUND=$(find "$FLTK_INSTALL_DIR" -name FLTKConfig.cmake -print -quit | sed 's/\\/\//g')
+          if [[ -z "$FLTK_DIR_FOUND" ]]; then
+            echo "FLTKConfig.cmake not found under $FLTK_INSTALL_DIR" >&2
+            find "$FLTK_INSTALL_DIR" -maxdepth 4 -type d -printf '%p\n' 2>/dev/null || true
+            exit 1
+          fi
+          echo "FLTK_DIR=$(dirname "$FLTK_DIR_FOUND")" >> "$GITHUB_ENV"
+          echo "Resolved FLTK_DIR=$(dirname "$FLTK_DIR_FOUND")"
 
       - name: Configure pvztoolkit
         run: |
@@ -73,10 +86,10 @@ jobs:
           cmake -S . -B build \
             -G "Visual Studio 17 2022" -A Win32 \
             -D CMAKE_BUILD_TYPE="${{ inputs.config }}" \
-            -D FLTK_DIR="${FLTK_INSTALL_DIR}/CMake"
+            -D FLTK_DIR="${FLTK_DIR}"
 
       - name: Build pvztoolkit
-        run: cmake --build build --config "${{ inputs.config }}" -- /m
+        run: cmake --build build --config "${{ inputs.config }}" --parallel
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
