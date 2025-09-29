@@ -1543,9 +1543,9 @@ Window::Window(int width, int height, const char *title)
             choice_col->textfont(ui_font);
             choice_plant->textfont(ui_font);
             choice_zombie->textfont(ui_font);
-            button_lawn_mower_start->textfont(ui_font);
-            button_lawn_mower_delete->textfont(ui_font);
-            button_lawn_mower_restore->textfont(ui_font);
+            button_lawn_mower_start->labelfont(ui_font);
+            button_lawn_mower_delete->labelfont(ui_font);
+            button_lawn_mower_restore->labelfont(ui_font);
             choice_item->textfont(ui_font);
         }
         {
@@ -1613,9 +1613,9 @@ Window::Window(int width, int height, const char *title)
             choice_col->textsize(font_size);
             choice_plant->textsize(font_size);
             choice_zombie->textsize(font_size);
-            button_lawn_mower_start->textsize(font_size);
-            button_lawn_mower_delete->textsize(font_size);
-            button_lawn_mower_restore->textsize(font_size);
+            button_lawn_mower_start->labelsize(font_size);
+            button_lawn_mower_delete->labelsize(font_size);
+            button_lawn_mower_restore->labelsize(font_size);
             choice_item->textsize(font_size);
         }
         {

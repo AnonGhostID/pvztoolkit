@@ -7,47 +7,78 @@ on:
         required: true
         default: MinSizeRel
         type: choice
-        options:
-          - MinSizeRel
-          - RelWithDebInfo
-          - Release
+        options: [MinSizeRel, RelWithDebInfo, Release]
       fltk_ref:
         description: FLTK git ref (branch, tag, or commit)
         required: true
         default: branch-1.4
         type: string
+
+concurrency:
+  group: build-${{ github.ref }}-${{ inputs.config }}
+  cancel-in-progress: true
+
 jobs:
   windows-msvc-x86:
     runs-on: windows-latest
     defaults:
       run:
         shell: bash
+    env:
+      # Speed up MSVC config + make Ninja multi-config behave like VS
+      CMAKE_GENERATOR: Ninja Multi-Config
+      CMAKE_HOST_TOOLSET: host=x64
+      # sccache settings (tweak to taste)
+      SCCACHE_DIR: ${{ runner.temp }}/.sccache
+      SCCACHE_CACHE_SIZE: 5G
+      # Keep this consistent between configure & build
+      BUILD_CONFIG: ${{ inputs.config }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # Filter blob content to reduce download size on big repos
+          filter: blob:none
 
-      - name: Compute cache key
-        id: cache-key
+      - name: Install sccache
+        run: choco install sccache -y
+
+      - name: Compute cache keys
+        id: keys
         run: |
           echo "fltk_key=${{ inputs.fltk_ref }}-x86-static-${{ inputs.config }}" >> "$GITHUB_OUTPUT"
+          echo "sccache_key=sccache-${{ runner.os }}-msvc-x86-${{ inputs.config }}-${{ hashFiles('**/*.cmake','CMakeLists.txt','**/*.cpp','**/*.c','**/*.h') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.SCCACHE_DIR }}
+          key: ${{ steps.keys.outputs.sccache_key }}
+          restore-keys: |
+            sccache-${{ runner.os }}-msvc-x86-${{ inputs.config }}-
 
       - name: Cache FLTK install
         id: cache-fltk
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/fltk-1.4.0-msvc-static-x86
-          key: fltk-${{ steps.cache-key.outputs.fltk_key }}
+          key: fltk-${{ steps.keys.outputs.fltk_key }}
 
       - name: Build FLTK (x86, static)
         if: steps.cache-fltk.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           FLTK_INSTALL_DIR="${RUNNER_TEMP}/fltk-1.4.0-msvc-static-x86"
-          git clone --depth 1 -b "${{ inputs.fltk_ref }}" https://github.com/fltk/fltk.git fltk-src
+          git clone --depth 1 -b "${{ inputs.fltk_ref }}" --filter=blob:none https://github.com/fltk/fltk.git fltk-src
+
           cmake -S fltk-src -B fltk-build \
-            -G "Visual Studio 17 2022" -A Win32 \
-            -D CMAKE_BUILD_TYPE="${{ inputs.config }}" \
+            -G "${CMAKE_GENERATOR}" -A Win32 -T "${CMAKE_HOST_TOOLSET}" \
+            -D CMAKE_POLICY_DEFAULT_CMP0091=NEW \
+            -D CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded \
             -D CMAKE_INSTALL_PREFIX="${FLTK_INSTALL_DIR}" \
+            -D CMAKE_INSTALL_MESSAGE=LAZY \
             -D FLTK_BUILD_EXAMPLES=OFF \
             -D FLTK_BUILD_FLTK_OPTIONS=OFF \
             -D FLTK_BUILD_FLUID=OFF \
@@ -63,33 +94,30 @@ jobs:
             -D FLTK_OPTION_SVG=ON \
             -D FLTK_USE_SYSTEM_LIBJPEG=OFF \
             -D FLTK_USE_SYSTEM_LIBPNG=OFF \
-            -D FLTK_USE_SYSTEM_ZLIB=OFF
-          cmake --build fltk-build --config "${{ inputs.config }}" --target install --parallel
+            -D FLTK_USE_SYSTEM_ZLIB=OFF \
+            -D CMAKE_C_COMPILER_LAUNCHER=sccache \
+            -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
 
-      - name: Resolve FLTK_DIR
-        run: |
-          set -euo pipefail
-          FLTK_INSTALL_DIR="${RUNNER_TEMP}/fltk-1.4.0-msvc-static-x86"
-          FLTK_DIR_FOUND=$(find "$FLTK_INSTALL_DIR" -name FLTKConfig.cmake -print -quit | sed 's/\\/\//g')
-          if [[ -z "$FLTK_DIR_FOUND" ]]; then
-            echo "FLTKConfig.cmake not found under $FLTK_INSTALL_DIR" >&2
-            find "$FLTK_INSTALL_DIR" -maxdepth 4 -type d -printf '%p\n' 2>/dev/null || true
-            exit 1
-          fi
-          echo "FLTK_DIR=$(dirname "$FLTK_DIR_FOUND")" >> "$GITHUB_ENV"
-          echo "Resolved FLTK_DIR=$(dirname "$FLTK_DIR_FOUND")"
+          # With Multi-Config Ninja we still choose a config here:
+          cmake --build fltk-build --config "${BUILD_CONFIG}" --target install --parallel
 
       - name: Configure pvztoolkit
         run: |
           set -euo pipefail
           FLTK_INSTALL_DIR="${RUNNER_TEMP}/fltk-1.4.0-msvc-static-x86"
+
+          # Let CMake auto-find FLTK via prefix path (no manual FLTK_DIR search)
           cmake -S . -B build \
-            -G "Visual Studio 17 2022" -A Win32 \
-            -D CMAKE_BUILD_TYPE="${{ inputs.config }}" \
-            -D FLTK_DIR="${FLTK_DIR}"
+            -G "${CMAKE_GENERATOR}" -A Win32 -T "${CMAKE_HOST_TOOLSET}" \
+            -D CMAKE_POLICY_DEFAULT_CMP0091=NEW \
+            -D CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded \
+            -D CMAKE_INSTALL_MESSAGE=LAZY \
+            -D CMAKE_PREFIX_PATH="${FLTK_INSTALL_DIR}" \
+            -D CMAKE_C_COMPILER_LAUNCHER=sccache \
+            -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
 
       - name: Build pvztoolkit
-        run: cmake --build build --config "${{ inputs.config }}" --parallel
+        run: cmake --build build --config "${BUILD_CONFIG}" --parallel
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
