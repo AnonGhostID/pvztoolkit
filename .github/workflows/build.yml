@@ -1,5 +1,7 @@
 name: build
+run-name: ${{ github.event_name == 'push' && replace(github.event.head_commit.message, '\n', ' ') || format('Manual build ({0})', github.event.inputs.config || 'MinSizeRel') }}
 on:
+  push:
   workflow_dispatch:
     inputs:
       config:
@@ -16,6 +18,10 @@ on:
         required: true
         default: branch-1.4
         type: string
+env:
+  BUILD_CONFIG: ${{ github.event.inputs.config || 'MinSizeRel' }}
+  FLTK_REF: ${{ github.event.inputs.fltk_ref || 'branch-1.4' }}
+
 jobs:
   windows-msvc-x86:
     runs-on: windows-latest
@@ -29,7 +35,7 @@ jobs:
       - name: Compute cache key
         id: cache-key
         run: |
-          echo "fltk_key=${{ inputs.fltk_ref }}-x86-static-${{ inputs.config }}" >> "$GITHUB_OUTPUT"
+          echo "fltk_key=${{ env.FLTK_REF }}-x86-static-${{ env.BUILD_CONFIG }}" >> "$GITHUB_OUTPUT"
 
       - name: Cache FLTK install
         id: cache-fltk
@@ -43,10 +49,10 @@ jobs:
         run: |
           set -euo pipefail
           FLTK_INSTALL_DIR="${RUNNER_TEMP}/fltk-1.4.0-msvc-static-x86"
-          git clone --depth 1 -b "${{ inputs.fltk_ref }}" https://github.com/fltk/fltk.git fltk-src
+          git clone --depth 1 -b "${{ env.FLTK_REF }}" https://github.com/fltk/fltk.git fltk-src
           cmake -S fltk-src -B fltk-build \
             -G "Visual Studio 17 2022" -A Win32 \
-            -D CMAKE_BUILD_TYPE="${{ inputs.config }}" \
+            -D CMAKE_BUILD_TYPE="${{ env.BUILD_CONFIG }}" \
             -D CMAKE_INSTALL_PREFIX="${FLTK_INSTALL_DIR}" \
             -D FLTK_BUILD_EXAMPLES=OFF \
             -D FLTK_BUILD_FLTK_OPTIONS=OFF \
@@ -64,7 +70,7 @@ jobs:
             -D FLTK_USE_SYSTEM_LIBJPEG=OFF \
             -D FLTK_USE_SYSTEM_LIBPNG=OFF \
             -D FLTK_USE_SYSTEM_ZLIB=OFF
-          cmake --build fltk-build --config "${{ inputs.config }}" --target install --parallel
+          cmake --build fltk-build --config "${{ env.BUILD_CONFIG }}" --target install --parallel
 
       - name: Resolve FLTK_DIR
         run: |
@@ -85,16 +91,16 @@ jobs:
           FLTK_INSTALL_DIR="${RUNNER_TEMP}/fltk-1.4.0-msvc-static-x86"
           cmake -S . -B build \
             -G "Visual Studio 17 2022" -A Win32 \
-            -D CMAKE_BUILD_TYPE="${{ inputs.config }}" \
+            -D CMAKE_BUILD_TYPE="${{ env.BUILD_CONFIG }}" \
             -D FLTK_DIR="${FLTK_DIR}"
 
       - name: Build pvztoolkit
-        run: cmake --build build --config "${{ inputs.config }}" --parallel
+        run: cmake --build build --config "${{ env.BUILD_CONFIG }}" --parallel
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pvztoolkit-${{ inputs.config }}-x86
+          name: pvztoolkit-${{ env.BUILD_CONFIG }}-x86
           path: |
-            build/${{ inputs.config }}/pvztoolkit*.exe
-            build/${{ inputs.config }}/*.pdb
+            build/${{ env.BUILD_CONFIG }}/pvztoolkit*.exe
+            build/${{ env.BUILD_CONFIG }}/*.pdb

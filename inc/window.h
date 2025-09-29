@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -112,6 +113,8 @@ class Window : public Fl_Double_Window
   public:
     Window(int, int, const char *);
     ~Window();
+
+    void resize(int, int, int, int) override;
 
     float MinScale();
     void ReadSettings();
@@ -269,6 +272,13 @@ class Window : public Fl_Double_Window
     bool emoji = false;
     bool emoji_i = false;
 #endif
+
+  private:
+    double aspect_ratio_ = 1.0;
+    bool suppress_aspect_lock_ = false;
+    bool aspect_ready_ = false;
+    int last_width_ = 0;
+    int last_height_ = 0;
 
   protected:
     static void cb_find_result(void *, int);

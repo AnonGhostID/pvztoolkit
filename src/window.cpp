@@ -784,7 +784,16 @@ Window::Window(int width, int height, const char *title)
     // 设置窗口大小
     const int w = iw * C + m * 2 + m * (C + 1);           // 宽度 450 536
     const int h = ih * R + m * 2 + m * (R + 1) + th + tb; // 高度 275 280
+    aspect_ratio_ = static_cast<double>(w) / static_cast<double>(h);
+    last_width_ = w;
+    last_height_ = h;
+    aspect_ready_ = true;
+
+    suppress_aspect_lock_ = true;
     this->size(w, h);
+    suppress_aspect_lock_ = false;
+
+    this->size_range(w, h);
 
     // 根据列数返回 x 坐标
     auto c = [=](int col) -> int
@@ -1710,6 +1719,8 @@ Window::Window(int width, int height, const char *title)
     check_tooltips->do_callback();
 #endif
 
+    this->resizable(this);
+
     // this->show(); // 在 main() 里带参调用
 
     ReadSettings(); // 读取设置
@@ -1724,6 +1735,63 @@ Window::Window(int width, int height, const char *title)
 Window::~Window()
 {
     WriteSettings(); // 保存设置
+}
+
+void Window::resize(int X, int Y, int W, int H)
+{
+    if (!aspect_ready_ || suppress_aspect_lock_)
+    {
+        Fl_Double_Window::resize(X, Y, W, H);
+        last_width_ = W;
+        last_height_ = H;
+        return;
+    }
+
+    if (W <= 0 || H <= 0)
+    {
+        Fl_Double_Window::resize(X, Y, W, H);
+        last_width_ = W;
+        last_height_ = H;
+        return;
+    }
+
+    if (aspect_ratio_ <= 0.0)
+    {
+        const int safe_w = last_width_ > 0 ? last_width_ : 1;
+        const int safe_h = last_height_ > 0 ? last_height_ : 1;
+        aspect_ratio_ = static_cast<double>(safe_w) / static_cast<double>(safe_h);
+    }
+
+    if (W == last_width_ && H == last_height_)
+    {
+        Fl_Double_Window::resize(X, Y, W, H);
+        return;
+    }
+
+    const int width_delta = std::abs(W - last_width_);
+    const int height_delta = std::abs(H - last_height_);
+
+    int newW = W;
+    int newH = H;
+
+    if (width_delta >= height_delta)
+    {
+        newH = static_cast<int>(std::round(static_cast<double>(newW) / aspect_ratio_));
+    }
+    else
+    {
+        newW = static_cast<int>(std::round(static_cast<double>(newH) * aspect_ratio_));
+    }
+
+    newW = std::max(newW, 1);
+    newH = std::max(newH, 1);
+
+    suppress_aspect_lock_ = true;
+    Fl_Double_Window::resize(X, Y, newW, newH);
+    suppress_aspect_lock_ = false;
+
+    last_width_ = newW;
+    last_height_ = newH;
 }
 
 float Window::MinScale()
