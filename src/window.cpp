@@ -784,7 +784,15 @@ Window::Window(int width, int height, const char *title)
     // 设置窗口大小
     const int w = iw * C + m * 2 + m * (C + 1);           // 宽度 450 536
     const int h = ih * R + m * 2 + m * (R + 1) + th + tb; // 高度 275 280
-    aspect_ratio_ = static_cast<double>(w) / static_cast<double>(h);
+    min_width_ = w;
+    min_height_ = h;
+    int gcd_wh = std::gcd(w, h);
+    if (gcd_wh <= 0)
+        gcd_wh = 1;
+    ratio_unit_w_ = w / gcd_wh;
+    ratio_unit_h_ = h / gcd_wh;
+    min_scale_units_ = gcd_wh;
+    aspect_ratio_ = static_cast<double>(ratio_unit_w_) / static_cast<double>(ratio_unit_h_);
     last_width_ = w;
     last_height_ = h;
     aspect_ready_ = true;
@@ -793,7 +801,7 @@ Window::Window(int width, int height, const char *title)
     this->size(w, h);
     suppress_aspect_lock_ = false;
 
-    this->size_range(w, h);
+    this->size_range(min_width_, min_height_);
 
     // 根据列数返回 x 坐标
     auto c = [=](int col) -> int
@@ -1742,56 +1750,74 @@ void Window::resize(int X, int Y, int W, int H)
     if (!aspect_ready_ || suppress_aspect_lock_)
     {
         Fl_Double_Window::resize(X, Y, W, H);
-        last_width_ = W;
-        last_height_ = H;
+        last_width_ = this->w();
+        last_height_ = this->h();
         return;
     }
 
     if (W <= 0 || H <= 0)
     {
         Fl_Double_Window::resize(X, Y, W, H);
-        last_width_ = W;
-        last_height_ = H;
+        last_width_ = this->w();
+        last_height_ = this->h();
         return;
     }
 
-    if (aspect_ratio_ <= 0.0)
+    auto compute_scale = [&](int value, int unit) -> int {
+        if (unit <= 0)
+            return min_scale_units_;
+        double raw = static_cast<double>(value) / static_cast<double>(unit);
+        int scale = static_cast<int>(std::lround(raw));
+        if (scale < min_scale_units_)
+            scale = min_scale_units_;
+        return scale;
+    };
+
+    auto build_size = [&](int scale, int &out_w, int &out_h) {
+        if (scale < min_scale_units_)
+            scale = min_scale_units_;
+        out_w = ratio_unit_w_ * scale;
+        out_h = ratio_unit_h_ * scale;
+    };
+
+    int candidate_w1 = 0;
+    int candidate_h1 = 0;
+    int candidate_w2 = 0;
+    int candidate_h2 = 0;
+    build_size(compute_scale(W, ratio_unit_w_), candidate_w1, candidate_h1);
+    build_size(compute_scale(H, ratio_unit_h_), candidate_w2, candidate_h2);
+
+    auto error = [&](int cw, int ch) -> long long {
+        long long dw = static_cast<long long>(cw) - static_cast<long long>(W);
+        long long dh = static_cast<long long>(ch) - static_cast<long long>(H);
+        if (dw < 0)
+            dw = -dw;
+        if (dh < 0)
+            dh = -dh;
+        return dw + dh;
+    };
+
+    int newW = candidate_w1;
+    int newH = candidate_h1;
+    if (error(candidate_w2, candidate_h2) < error(candidate_w1, candidate_h1))
     {
-        const int safe_w = last_width_ > 0 ? last_width_ : 1;
-        const int safe_h = last_height_ > 0 ? last_height_ : 1;
-        aspect_ratio_ = static_cast<double>(safe_w) / static_cast<double>(safe_h);
+        newW = candidate_w2;
+        newH = candidate_h2;
     }
 
-    if (W == last_width_ && H == last_height_)
+    if (newW == W && newH == H)
     {
         Fl_Double_Window::resize(X, Y, W, H);
-        return;
-    }
-
-    const int width_delta = std::abs(W - last_width_);
-    const int height_delta = std::abs(H - last_height_);
-
-    int newW = W;
-    int newH = H;
-
-    if (width_delta >= height_delta)
-    {
-        newH = static_cast<int>(std::round(static_cast<double>(newW) / aspect_ratio_));
     }
     else
     {
-        newW = static_cast<int>(std::round(static_cast<double>(newH) * aspect_ratio_));
+        suppress_aspect_lock_ = true;
+        Fl_Double_Window::resize(X, Y, newW, newH);
+        suppress_aspect_lock_ = false;
     }
 
-    newW = std::max(newW, 1);
-    newH = std::max(newH, 1);
-
-    suppress_aspect_lock_ = true;
-    Fl_Double_Window::resize(X, Y, newW, newH);
-    suppress_aspect_lock_ = false;
-
-    last_width_ = newW;
-    last_height_ = newH;
+    last_width_ = this->w();
+    last_height_ = this->h();
 }
 
 float Window::MinScale()

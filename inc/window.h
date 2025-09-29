@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <numeric>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -279,6 +280,11 @@ class Window : public Fl_Double_Window
     bool aspect_ready_ = false;
     int last_width_ = 0;
     int last_height_ = 0;
+    int ratio_unit_w_ = 1;
+    int ratio_unit_h_ = 1;
+    int min_scale_units_ = 1;
+    int min_width_ = 0;
+    int min_height_ = 0;
 
   protected:
     static void cb_find_result(void *, int);
