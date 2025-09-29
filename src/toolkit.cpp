@@ -63,7 +63,10 @@ Toolkit::Toolkit(int width, int height, const char *title)
     button_put_grave->callback(cb_put_grave, this);
     button_put_rake->callback(cb_put_rake, this);
 
-    button_lawn_mower->callback(cb_lawn_mower, this);
+    // Lawn Mower actions
+    button_lawn_mower_start->callback(cb_lawn_mower_start, this);
+    button_lawn_mower_delete->callback(cb_lawn_mower_delete, this);
+    button_lawn_mower_restore->callback(cb_lawn_mower_restore, this);
     button_clear->callback(cb_clear, this);
 
     check_plant_invincible->callback(cb_plant_invincible, this);
@@ -655,14 +658,34 @@ void Toolkit::cb_put_rake()
     pvz->PutRake(row, col);
 }
 
-void Toolkit::cb_lawn_mower(Fl_Widget *, void *w)
+void Toolkit::cb_lawn_mower_start(Fl_Widget *, void *w)
 {
-    ((Toolkit *)w)->cb_lawn_mower();
+    ((Toolkit *)w)->cb_lawn_mower_start();
 }
 
-void Toolkit::cb_lawn_mower()
+void Toolkit::cb_lawn_mower_start()
 {
-    pvz->SetLawnMowers(button_lawn_mower->value());
+    pvz->SetLawnMowers(0);
+}
+
+void Toolkit::cb_lawn_mower_delete(Fl_Widget *, void *w)
+{
+    ((Toolkit *)w)->cb_lawn_mower_delete();
+}
+
+void Toolkit::cb_lawn_mower_delete()
+{
+    pvz->SetLawnMowers(1);
+}
+
+void Toolkit::cb_lawn_mower_restore(Fl_Widget *, void *w)
+{
+    ((Toolkit *)w)->cb_lawn_mower_restore();
+}
+
+void Toolkit::cb_lawn_mower_restore()
+{
+    pvz->SetLawnMowers(2);
 }
 
 void Toolkit::cb_clear(Fl_Widget *, void *w)

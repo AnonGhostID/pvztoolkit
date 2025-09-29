@@ -163,7 +163,10 @@ class Window : public Fl_Double_Window
     Fl_Button *button_put_ladder;
     Fl_Button *button_put_grave;
     Fl_Button *button_put_rake;
-    Fl_Menu_Button *button_lawn_mower;
+    // Lawn Mower actions (replaces dropdown)
+    Fl_Button *button_lawn_mower_start;
+    Fl_Button *button_lawn_mower_delete;
+    Fl_Button *button_lawn_mower_restore;
     Fl_Choice_ *choice_item;
     Fl_Button *button_clear;
     Fl_Check_Button *check_plant_invincible;

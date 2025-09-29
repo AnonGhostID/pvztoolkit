@@ -848,7 +848,17 @@ Window::Window(int width, int height, const char *title)
                 button_put_ladder = new Fl_Button(c(3) + 40, r(3), iw - 40 + 20, ih, "搭梯子");
                 button_put_grave = new Fl_Button(c(4) + 20, r(2), iw - 20, ih, "冒墓碑");
                 button_put_rake = new Fl_Button(c(4) + 20, r(3), iw - 20, ih, "放钉耙");
-                button_lawn_mower = new Fl_Menu_Button(c(1), r(3), iw - 10, ih, "小推车");
+                // Lawn Mower: split dropdown into three buttons
+                {
+                    int x0 = c(1);
+                    int y0 = r(3);
+                    int total = iw - 10;
+                    int sp = 2;
+                    int bw = (total - sp * 2) / 3;
+                    button_lawn_mower_start = new Fl_Button(x0, y0, bw, ih, "[启动]");
+                    button_lawn_mower_delete = new Fl_Button(x0 + bw + sp, y0, bw, ih, "[删除]");
+                    button_lawn_mower_restore = new Fl_Button(x0 + (bw + sp) * 2, y0, total - (bw * 2 + sp * 2), ih, "[恢复]");
+                }
                 choice_item = new Fl_Choice_(c(2) - 10, r(3), iw + 10 - 20, ih, "");
                 button_clear = new Fl_Button(c(2) + iw - 20 + m, r(3), iw - 45, ih, "清除");
                 check_plant_invincible = new Fl_Check_Button(c(1), r(4), iw - 15, ih, "植物无敌");
@@ -1017,7 +1027,17 @@ Window::Window(int width, int height, const char *title)
                 button_put_grave = new Fl_Button(c(4) + 35 * 1, r(2), iw - 35, ih, "Put Grave");
                 button_put_ladder = new Fl_Button(c(3) + 35 * 2, r(3), iw - 35, ih, "Put Ladder");
                 button_put_rake = new Fl_Button(c(4) + 35 * 1, r(3), iw - 35, ih, "Put Rake");
-                button_lawn_mower = new Fl_Menu_Button(c(1), r(3), iw - 10, ih, "Lawn Mower");
+                // Lawn Mower: split dropdown into three buttons
+                {
+                    int x0 = c(1);
+                    int y0 = r(3);
+                    int total = iw - 10;
+                    int sp = 2;
+                    int bw = (total - sp * 2) / 3;
+                    button_lawn_mower_start = new Fl_Button(x0, y0, bw, ih, "Start");
+                    button_lawn_mower_delete = new Fl_Button(x0 + bw + sp, y0, bw, ih, "Delete");
+                    button_lawn_mower_restore = new Fl_Button(x0 + (bw + sp) * 2, y0, total - (bw * 2 + sp * 2), ih, "Restore");
+                }
                 choice_item = new Fl_Choice_(c(2) - 10, r(3), 100, ih, "");
                 button_clear = new Fl_Button(c(2) - 10 + 100 + m, r(3), (iw + 10 + 35 * 2) - 100 - m, ih, "Clear All");
                 check_plant_invincible = new Fl_Check_Button(c(1), r(4), iw + 5, ih, "Plant Invincible");
@@ -1234,13 +1254,7 @@ Window::Window(int width, int height, const char *title)
     choice_zombie->value(0);
 
 #ifdef _PTK_CHINESE_UI
-    button_lawn_mower->add("[启动]");
-    button_lawn_mower->add("[删除]");
-    button_lawn_mower->add("[恢复]");
-#else
-    button_lawn_mower->add("[ Start ]");
-    button_lawn_mower->add("[ Delete ]");
-    button_lawn_mower->add("[ Restore ]");
+    // Labels set later with emoji support
 #endif
 
 #ifdef _PTK_CHINESE_UI
@@ -1529,7 +1543,9 @@ Window::Window(int width, int height, const char *title)
             choice_col->textfont(ui_font);
             choice_plant->textfont(ui_font);
             choice_zombie->textfont(ui_font);
-            button_lawn_mower->textfont(ui_font);
+            button_lawn_mower_start->textfont(ui_font);
+            button_lawn_mower_delete->textfont(ui_font);
+            button_lawn_mower_restore->textfont(ui_font);
             choice_item->textfont(ui_font);
         }
         {
@@ -1597,7 +1613,9 @@ Window::Window(int width, int height, const char *title)
             choice_col->textsize(font_size);
             choice_plant->textsize(font_size);
             choice_zombie->textsize(font_size);
-            button_lawn_mower->textsize(font_size);
+            button_lawn_mower_start->textsize(font_size);
+            button_lawn_mower_delete->textsize(font_size);
+            button_lawn_mower_restore->textsize(font_size);
             choice_item->textsize(font_size);
         }
         {
@@ -1660,9 +1678,10 @@ Window::Window(int width, int height, const char *title)
 
     button_unlock->copy_label(EMOJI("🏆", "通关存档"));
 
-    button_lawn_mower->replace(0, EMOJI("➡️", "[启动]"));
-    button_lawn_mower->replace(1, EMOJI("🆑", "[删除]"));
-    button_lawn_mower->replace(2, EMOJI("🔄", "[恢复]"));
+    // Set emoji labels for Lawn Mower actions
+    button_lawn_mower_start->copy_label(EMOJI("➡️", "[启动]"));
+    button_lawn_mower_delete->copy_label(EMOJI("🆑", "[删除]"));
+    button_lawn_mower_restore->copy_label(EMOJI("🔄", "[恢复]"));
 
     button_reset->copy_label(EMOJI("⏳", "重置场地"));
 
@@ -3101,7 +3120,9 @@ void Window::cb_tooltips()
     button_put_ladder->copy_tooltip(on ? "Put Ladder" : nullptr);
     button_put_grave->copy_tooltip(on ? "Put Grave" : nullptr);
     button_put_rake->copy_tooltip(on ? "Put Rake" : nullptr);
-    button_lawn_mower->copy_tooltip(on ? "Lawn Mowers" : nullptr);
+    button_lawn_mower_start->copy_tooltip(on ? "Start Lawn Mowers" : nullptr);
+    button_lawn_mower_delete->copy_tooltip(on ? "Delete Lawn Mowers" : nullptr);
+    button_lawn_mower_restore->copy_tooltip(on ? "Restore Lawn Mowers" : nullptr);
     choice_item->copy_tooltip(on ? vstr_items[choice_item->value()].c_str() : nullptr);
     button_clear->copy_tooltip(on ? "Clear All" : nullptr);
     check_plant_invincible->copy_tooltip(on ? "Plant Invincible" : nullptr);

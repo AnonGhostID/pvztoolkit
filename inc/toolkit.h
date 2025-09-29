@@ -133,8 +133,13 @@ class Toolkit : public Window
     static void cb_put_rake(Fl_Widget *, void *);
     inline void cb_put_rake();
 
-    static void cb_lawn_mower(Fl_Widget *, void *);
-    inline void cb_lawn_mower();
+    // Lawn Mower actions (Start/Delete/Restore)
+    static void cb_lawn_mower_start(Fl_Widget *, void *);
+    inline void cb_lawn_mower_start();
+    static void cb_lawn_mower_delete(Fl_Widget *, void *);
+    inline void cb_lawn_mower_delete();
+    static void cb_lawn_mower_restore(Fl_Widget *, void *);
+    inline void cb_lawn_mower_restore();
 
     static void cb_clear(Fl_Widget *, void *);
     inline void cb_clear();
