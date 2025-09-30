@@ -22,6 +22,7 @@ if(USE_QT_UI)
     set(PZTK_SRCS
         ./src/code.cpp
         ./src/data.cpp
+        ./src/checkcombobox.cpp
         ./src/lineup.cpp
         ./src/main_qt.cpp
         ./src/pak.cpp
@@ -32,6 +33,7 @@ if(USE_QT_UI)
         ./src/window_qt.cpp
     )
     set(PZTK_QT_HEADERS
+        ./inc/checkcombobox.h
         ./inc/toolkit_qt.h
         ./inc/window_qt.h
     )

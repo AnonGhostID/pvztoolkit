@@ -24,6 +24,7 @@
 #include <QDialog>
 #include <QRadioButton>
 
+#include "checkcombobox.h"
 #include <Windows.h>
 #include <filesystem>
 #include <vector>
@@ -101,8 +102,8 @@ public:
     QCheckBox *check_brightest_cob_cannon;
     
     QWidget *group_battle;
-    QComboBox *choice_row;
-    QComboBox *choice_col;
+    CheckComboBox *choice_row;
+    CheckComboBox *choice_col;
     QComboBox *choice_plant;
     QComboBox *choice_zombie;
     QPushButton *button_put_plant;

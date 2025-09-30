@@ -294,17 +294,23 @@ void QtWindow::createBattleTab()
     placementLayout->setSpacing(8);
     
     placementLayout->addWidget(new QLabel("Row:"), 0, 0);
-    choice_row = new QComboBox();
+    choice_row = new CheckComboBox();
+    choice_row->setPlaceholderText("Select Rows");
+    choice_row->addAllItem("All Rows");
     for (int i = 1; i <= 6; i++) {
-        choice_row->addItem(QString::number(i));
+        choice_row->addCheckItem(QString("Row %1").arg(i), i - 1);
     }
+    choice_row->setCheckedValues({0});
     placementLayout->addWidget(choice_row, 0, 1);
     
     placementLayout->addWidget(new QLabel("Col:"), 0, 2);
-    choice_col = new QComboBox();
+    choice_col = new CheckComboBox();
+    choice_col->setPlaceholderText("Select Columns");
+    choice_col->addAllItem("All Columns");
     for (int i = 1; i <= 9; i++) {
-        choice_col->addItem(QString::number(i));
+        choice_col->addCheckItem(QString("Column %1").arg(i), i - 1);
     }
+    choice_col->setCheckedValues({0});
     placementLayout->addWidget(choice_col, 0, 3);
     
     placementLayout->addWidget(new QLabel("Plant:"), 1, 0);

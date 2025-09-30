@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <QList>
 #include <limits>
 
 #include "lineup.h"
@@ -32,6 +33,7 @@ private:
     void connectSignals();
 
     void close_all_sub_window();
+    bool selectedRowsAndColumns(QList<int> &rows, QList<int> &cols);
 
 public:
     PvZ *pvz;

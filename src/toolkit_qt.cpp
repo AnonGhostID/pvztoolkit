@@ -155,6 +155,20 @@ void QtToolkit::close_all_sub_window()
     }
 }
 
+bool QtToolkit::selectedRowsAndColumns(QList<int> &rows, QList<int> &cols)
+{
+    rows = choice_row->checkedValues();
+    cols = choice_col->checkedValues();
+
+    if (rows.isEmpty() || cols.isEmpty())
+    {
+        QMessageBox::warning(this, "Selection Required", "Please select at least one row and column.");
+        return false;
+    }
+
+    return true;
+}
+
 void QtToolkit::cb_find_result(int result)
 {
     this->result = result;
@@ -302,45 +316,77 @@ void QtToolkit::cb_direct_win_thread()
 
 void QtToolkit::cb_put_plant()
 {
-    int row = choice_row->currentIndex();
-    int col = choice_col->currentIndex();
+    QList<int> rows;
+    QList<int> cols;
+    if (!selectedRowsAndColumns(rows, cols))
+        return;
+
     int plant_type = choice_plant->currentIndex();
     bool imitater = check_imitater->isChecked();
-    
-    pvz->PutPlant(row, col, plant_type, imitater);
+
+    for (int row : rows)
+    {
+        for (int col : cols)
+            pvz->PutPlant(row, col, plant_type, imitater);
+    }
 }
 
 void QtToolkit::cb_put_zombie()
 {
-    int row = choice_row->currentIndex();
-    int col = choice_col->currentIndex();
+    QList<int> rows;
+    QList<int> cols;
+    if (!selectedRowsAndColumns(rows, cols))
+        return;
+
     int zombie_type = choice_zombie->currentIndex();
-    
-    pvz->PutZombie(row, col, zombie_type);
+
+    for (int row : rows)
+    {
+        for (int col : cols)
+            pvz->PutZombie(row, col, zombie_type);
+    }
 }
 
 void QtToolkit::cb_put_ladder()
 {
-    int row = choice_row->currentIndex();
-    int col = choice_col->currentIndex();
-    
-    pvz->PutLadder(row, col);
+    QList<int> rows;
+    QList<int> cols;
+    if (!selectedRowsAndColumns(rows, cols))
+        return;
+
+    for (int row : rows)
+    {
+        for (int col : cols)
+            pvz->PutLadder(row, col);
+    }
 }
 
 void QtToolkit::cb_put_grave()
 {
-    int row = choice_row->currentIndex();
-    int col = choice_col->currentIndex();
-    
-    pvz->PutGrave(row, col);
+    QList<int> rows;
+    QList<int> cols;
+    if (!selectedRowsAndColumns(rows, cols))
+        return;
+
+    for (int row : rows)
+    {
+        for (int col : cols)
+            pvz->PutGrave(row, col);
+    }
 }
 
 void QtToolkit::cb_put_rake()
 {
-    int row = choice_row->currentIndex();
-    int col = choice_col->currentIndex();
-    
-    pvz->PutRake(row, col);
+    QList<int> rows;
+    QList<int> cols;
+    if (!selectedRowsAndColumns(rows, cols))
+        return;
+
+    for (int row : rows)
+    {
+        for (int col : cols)
+            pvz->PutRake(row, col);
+    }
 }
 
 void QtToolkit::cb_lawn_mower_start()
