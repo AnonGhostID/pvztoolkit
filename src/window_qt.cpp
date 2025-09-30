@@ -12,6 +12,7 @@
 #include <QStandardPaths>
 #include <QHeaderView>
 #include <QAbstractItemView>
+#include <QScrollArea>
 
 namespace Pt
 {
@@ -115,7 +116,8 @@ QtWindow::QtWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle(QString("PvZ Toolkit %1 (Modern UI)").arg(VERSION_NAME));
-    resize(800, 450);
+    setMinimumSize(720, 420);
+    resize(900, 500);
     
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
@@ -272,8 +274,12 @@ void QtWindow::createResourceTab()
     
     mainLayout->addWidget(levelGroup);
     mainLayout->addStretch();
-    
-    tabs->addTab(group_resource, "⚡ Resource");
+
+    QScrollArea *resourceScroll = new QScrollArea(this);
+    resourceScroll->setWidget(group_resource);
+    resourceScroll->setWidgetResizable(true);
+    resourceScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tabs->addTab(resourceScroll, "⚡ Resource");
 }
 
 void QtWindow::createBattleTab()
@@ -396,8 +402,12 @@ void QtWindow::createBattleTab()
     
     mainLayout->addWidget(modifiersGroup);
     mainLayout->addStretch();
-    
-    tabs->addTab(group_battle, "⚔️ Battle");
+
+    QScrollArea *battleScroll = new QScrollArea(this);
+    battleScroll->setWidget(group_battle);
+    battleScroll->setWidgetResizable(true);
+    battleScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tabs->addTab(battleScroll, "⚔️ Battle");
 }
 
 void QtWindow::createLineupTab()
@@ -495,8 +505,12 @@ void QtWindow::createLineupTab()
     
     mainLayout->addWidget(lineupCodeGroup);
     mainLayout->addStretch();
-    
-    tabs->addTab(group_lineup, "📋 Lineup");
+
+    QScrollArea *lineupScroll = new QScrollArea(this);
+    lineupScroll->setWidget(group_lineup);
+    lineupScroll->setWidgetResizable(true);
+    lineupScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tabs->addTab(lineupScroll, "📋 Lineup");
 }
 
 void QtWindow::createSpawnTab()
@@ -559,8 +573,12 @@ void QtWindow::createSpawnTab()
     
     mainLayout->addWidget(presetsGroup);
     mainLayout->addStretch();
-    
-    tabs->addTab(group_spawn, "🧟 Spawn");
+
+    QScrollArea *spawnScroll = new QScrollArea(this);
+    spawnScroll->setWidget(group_spawn);
+    spawnScroll->setWidgetResizable(true);
+    spawnScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tabs->addTab(spawnScroll, "🧟 Spawn");
 }
 
 void QtWindow::createOthersTab()
@@ -678,8 +696,12 @@ void QtWindow::createOthersTab()
     mainLayout->addLayout(infoButtonsLayout);
     
     mainLayout->addStretch();
-    
-    tabs->addTab(group_others, "⚙️ Others");
+
+    QScrollArea *othersScroll = new QScrollArea(this);
+    othersScroll->setWidget(group_others);
+    othersScroll->setWidgetResizable(true);
+    othersScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tabs->addTab(othersScroll, "⚙️ Others");
 }
 
 void QtWindow::applyModernTheme()
