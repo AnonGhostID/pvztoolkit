@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.15)
 
 project(pvztoolkit)
@@ -6,14 +5,36 @@ project(pvztoolkit)
 # set(CMAKE_BUILD_TYPE MinSizeRel)
 # set(FLTK_DIR "C:/Dev/fltk_1.4.0/msvc2017_x86/static/CMake")
 
+option(USE_QT_UI "Build with Qt modern UI instead of FLTK classic UI" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-find_package(FLTK CONFIG REQUIRED)
+if(USE_QT_UI)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
+    find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
+    
+    set(PZTK_SRCS
+        ./src/code.cpp
+        ./src/data.cpp
+        ./src/lineup.cpp
+        ./src/main_qt.cpp
+        ./src/pak.cpp
+        ./src/process.cpp
+        ./src/pvz.cpp
+        ./src/toolkit_qt.cpp
+        ./src/utils.cpp
+        ./src/window_qt.cpp
+    )
+else()
+    find_package(FLTK CONFIG REQUIRED)
+    aux_source_directory(./src PZTK_SRCS)
+endif()
 
-aux_source_directory(./src PZTK_SRCS)
 add_executable(pvztoolkit WIN32 ${PZTK_SRCS})
 
 # target_include_directories(
@@ -36,14 +57,26 @@ target_compile_definitions(
     _PVZ_BETA_LEAK_SUPPORT
 )
 
+if(USE_QT_UI)
+    target_compile_definitions(pvztoolkit PRIVATE USE_QT_UI)
+endif()
+
 target_compile_options(
     pvztoolkit PRIVATE
     /Zc:wchar_t /Zc:__cplusplus
     /utf-8
 )
 
-target_link_libraries(
-    pvztoolkit PRIVATE
-    fltk::fltk fltk::images fltk::jpeg fltk::png fltk::z
-    crypt32.lib advapi32.lib wintrust.lib shlwapi.lib
-)
+if(USE_QT_UI)
+    target_link_libraries(
+        pvztoolkit PRIVATE
+        Qt6::Core Qt6::Widgets
+        crypt32.lib advapi32.lib wintrust.lib shlwapi.lib
+    )
+else()
+    target_link_libraries(
+        pvztoolkit PRIVATE
+        fltk::fltk fltk::images fltk::jpeg fltk::png fltk::z
+        crypt32.lib advapi32.lib wintrust.lib shlwapi.lib
+    )
+endif()
