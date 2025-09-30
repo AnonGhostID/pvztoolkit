@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 if(USE_QT_UI)
+    message(STATUS "Building with Qt Modern UI")
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
     set(CMAKE_AUTOUIC ON)
@@ -30,9 +31,24 @@ if(USE_QT_UI)
         ./src/utils.cpp
         ./src/window_qt.cpp
     )
+    message(STATUS "Qt sources: ${PZTK_SRCS}")
 else()
+    message(STATUS "Building with FLTK Classic UI")
     find_package(FLTK CONFIG REQUIRED)
-    aux_source_directory(./src PZTK_SRCS)
+    
+    set(PZTK_SRCS
+        ./src/code.cpp
+        ./src/data.cpp
+        ./src/lineup.cpp
+        ./src/main.cpp
+        ./src/pak.cpp
+        ./src/process.cpp
+        ./src/pvz.cpp
+        ./src/toolkit.cpp
+        ./src/utils.cpp
+        ./src/window.cpp
+    )
+    message(STATUS "FLTK sources: ${PZTK_SRCS}")
 endif()
 
 add_executable(pvztoolkit WIN32 ${PZTK_SRCS})

@@ -137,10 +137,13 @@ jobs:
       - name: Configure pvztoolkit (Qt)
         run: |
           set -euo pipefail
+          rm -rf build_qt
           cmake -S . -B build_qt \
             -G "Visual Studio 17 2022" -A Win32 \
             -D CMAKE_BUILD_TYPE="${{ env.BUILD_CONFIG }}" \
             -D USE_QT_UI=ON
+          echo "=== CMake Cache Check ==="
+          grep USE_QT_UI build_qt/CMakeCache.txt || echo "USE_QT_UI not found in cache!"
 
       - name: Build pvztoolkit (Qt)
         run: cmake --build build_qt --config "${{ env.BUILD_CONFIG }}" --parallel
