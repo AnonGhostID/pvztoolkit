@@ -124,13 +124,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Qt6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Qt6 SDK
         uses: jurplel/install-qt-action@v3
         with:
           version: '6.5.3'
           host: 'windows'
           target: 'desktop'
-          arch: 'win64_msvc2019'
+          arch: 'win64_msvc2019_64'
           cache: true
 
       - name: Configure pvztoolkit (Qt)
