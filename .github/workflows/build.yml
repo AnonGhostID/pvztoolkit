@@ -113,8 +113,8 @@ jobs:
             build/${{ env.BUILD_CONFIG }}/pvztoolkit*.exe
             build/${{ env.BUILD_CONFIG }}/*.pdb
 
-  windows-msvc-x86-qt:
-    name: Build Qt Modern UI
+  windows-msvc-x64-qt:
+    name: Build Qt Modern UI (x64)
     runs-on: windows-latest
     defaults:
       run:
@@ -130,7 +130,7 @@ jobs:
           version: '6.5.3'
           host: 'windows'
           target: 'desktop'
-          arch: 'win32_msvc2019'
+          arch: 'win64_msvc2019'
           cache: true
 
       - name: Configure pvztoolkit (Qt)
@@ -138,7 +138,7 @@ jobs:
           set -euo pipefail
           rm -rf build_qt
           cmake -S . -B build_qt \
-            -G "Visual Studio 17 2022" -A Win32 \
+            -G "Visual Studio 17 2022" -A x64 \
             -D CMAKE_BUILD_TYPE="${{ env.BUILD_CONFIG }}" \
             -D USE_QT_UI=ON
           echo "=== CMake Cache Check ==="
@@ -160,7 +160,7 @@ jobs:
       - name: Upload artifact (Qt Modern UI)
         uses: actions/upload-artifact@v4
         with:
-          name: pvztoolkit-qt-modern-${{ env.BUILD_CONFIG }}-x86
+          name: pvztoolkit-qt-modern-${{ env.BUILD_CONFIG }}-x64
           path: |
             build_qt/${{ env.BUILD_CONFIG }}/pvztoolkit*.exe
             build_qt/${{ env.BUILD_CONFIG }}/*.dll
