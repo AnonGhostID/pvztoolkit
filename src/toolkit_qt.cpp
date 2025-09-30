@@ -42,6 +42,10 @@ QtToolkit::QtToolkit(QWidget *parent)
     
     // Connect all signals to slots
     connectSignals();
+
+    // Match legacy behaviour: keep PvZ running when toolkit has focus
+    check_background->setChecked(true);
+    pvz->BackgroundRunning(true);
 }
 
 QtToolkit::~QtToolkit()
