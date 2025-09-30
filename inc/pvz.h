@@ -268,6 +268,9 @@ class PvZ : public Process, public Code, public Data
 
     // 显示隐藏关卡
     void UnlockLimboPage(bool);
+
+  private:
+    std::chrono::steady_clock::time_point last_find_attempt = std::chrono::steady_clock::time_point::min();
 };
 
 template <typename T, size_t size>
