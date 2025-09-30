@@ -103,9 +103,20 @@ T Process::ReadMemory(std::initializer_list<uintptr_t> addr)
         else
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &result, sizeof(result), &read_size);
-            if (ret == 0 || sizeof(result) != read_size)
-                return T();
+            if constexpr (std::is_integral_v<T> && sizeof(T) > sizeof(remote_ptr_t))
+            {
+                remote_ptr_t tmp = 0;
+                BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &tmp, sizeof(tmp), &read_size);
+                if (ret == 0 || sizeof(tmp) != read_size)
+                    return T();
+                result = static_cast<uintptr_t>(tmp);
+            }
+            else
+            {
+                BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &result, sizeof(result), &read_size);
+                if (ret == 0 || sizeof(result) != read_size)
+                    return T();
+            }
         }
     }
 
@@ -181,9 +192,19 @@ void Process::WriteMemory(T value, std::initializer_list<uintptr_t> addr)
         else
         {
             SIZE_T write_size = 0;
-            BOOL ret = WriteProcessMemory(this->handle, reinterpret_cast<void *>(offset + *it), &value, sizeof(value), &write_size);
-            if (ret == 0 || sizeof(value) != write_size)
-                return;
+            if constexpr (std::is_integral_v<T> && sizeof(T) > sizeof(remote_ptr_t))
+            {
+                remote_ptr_t tmp = static_cast<remote_ptr_t>(value);
+                BOOL ret = WriteProcessMemory(this->handle, reinterpret_cast<void *>(offset + *it), &tmp, sizeof(tmp), &write_size);
+                if (ret == 0 || sizeof(tmp) != write_size)
+                    return;
+            }
+            else
+            {
+                BOOL ret = WriteProcessMemory(this->handle, reinterpret_cast<void *>(offset + *it), &value, sizeof(value), &write_size);
+                if (ret == 0 || sizeof(value) != write_size)
+                    return;
+            }
         }
     }
 
