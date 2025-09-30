@@ -83,6 +83,8 @@ public:
     int selectedMode = 0; // 0 = none, 1 = modern, 2 = classic
 };
 
+#include "main_qt.moc"
+
 void callback_pvz_check(void *w)
 {
     Pt::QtToolkit *toolkit = static_cast<Pt::QtToolkit *>(w);
