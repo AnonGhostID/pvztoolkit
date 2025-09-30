@@ -727,8 +727,8 @@ void QtToolkit::cb_limbo_page()
 
 void QtToolkit::cb_scheme()
 {
-    // Theme switching is handled in applyModernTheme
-    applyModernTheme();
+    // Delegate theme handling to base implementation
+    QtWindow::cb_scheme();
 }
 
 void QtToolkit::cb_document()
