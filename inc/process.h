@@ -5,10 +5,12 @@
 
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 namespace Pt
 {
@@ -53,6 +55,8 @@ class Process
     DWORD pid;     // 进程标识
     HANDLE handle; // 进程句柄
 
+    using remote_ptr_t = std::conditional_t<(INTPTR_MAX > INT32_MAX), uint32_t, uintptr_t>;
+
 #if (defined _DEBUG) && (defined _PZTK_MEMORY_OUTPUT)
   private:
     std::string int_to_hex_string(unsigned int num)
@@ -90,14 +94,16 @@ T Process::ReadMemory(std::initializer_list<uintptr_t> addr)
         if (it != addr.end() - 1)
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &offset, sizeof(offset), &read_size);
-            if (ret == 0 || sizeof(offset) != read_size)
+            remote_ptr_t next = 0;
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &next, sizeof(next), &read_size);
+            if (ret == 0 || sizeof(next) != read_size)
                 return T();
+            offset = static_cast<uintptr_t>(next);
         }
         else
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &result, sizeof(result), &read_size);
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &result, sizeof(result), &read_size);
             if (ret == 0 || sizeof(result) != read_size)
                 return T();
         }
@@ -124,9 +130,11 @@ inline std::string Process::ReadMemory<std::string>(std::initializer_list<uintpt
         if (it != addr.end() - 1)
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &offset, sizeof(offset), &read_size);
-            if (ret == 0 || sizeof(offset) != read_size)
+            remote_ptr_t next = 0;
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &next, sizeof(next), &read_size);
+            if (ret == 0 || sizeof(next) != read_size)
                 return std::string();
+            offset = static_cast<uintptr_t>(next);
         }
         else
         {
@@ -135,7 +143,7 @@ inline std::string Process::ReadMemory<std::string>(std::initializer_list<uintpt
             char ch = 0;
 
         read_letter:
-            ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &ch, sizeof(ch), &read_size);
+            ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &ch, sizeof(ch), &read_size);
             while (read_size == sizeof(ch) && ret != 0 && ch != 0)
             {
                 result += ch;
@@ -164,14 +172,16 @@ void Process::WriteMemory(T value, std::initializer_list<uintptr_t> addr)
         if (it != addr.end() - 1)
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &offset, sizeof(offset), &read_size);
-            if (ret == 0 || sizeof(offset) != read_size)
+            remote_ptr_t next = 0;
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &next, sizeof(next), &read_size);
+            if (ret == 0 || sizeof(next) != read_size)
                 return;
+            offset = static_cast<uintptr_t>(next);
         }
         else
         {
             SIZE_T write_size = 0;
-            BOOL ret = WriteProcessMemory(this->handle, (void *)(offset + *it), &value, sizeof(value), &write_size);
+            BOOL ret = WriteProcessMemory(this->handle, reinterpret_cast<void *>(offset + *it), &value, sizeof(value), &write_size);
             if (ret == 0 || sizeof(value) != write_size)
                 return;
         }
@@ -199,14 +209,16 @@ std::array<T, size> Process::ReadMemory(std::initializer_list<uintptr_t> addr)
         if (it != addr.end() - 1)
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &offset, sizeof(offset), &read_size);
-            if (ret == 0 || sizeof(offset) != read_size)
+            remote_ptr_t next = 0;
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &next, sizeof(next), &read_size);
+            if (ret == 0 || sizeof(next) != read_size)
                 return std::array<T, size>{T()};
+            offset = static_cast<uintptr_t>(next);
         }
         else
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &buff, sizeof(buff), &read_size);
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &buff, sizeof(buff), &read_size);
             if (ret == 0 || sizeof(buff) != read_size)
                 return std::array<T, size>{T()};
         }
@@ -239,14 +251,16 @@ void Process::WriteMemory(std::array<T, size> value, std::initializer_list<uintp
         if (it != addr.end() - 1)
         {
             SIZE_T read_size = 0;
-            BOOL ret = ReadProcessMemory(this->handle, (const void *)(offset + *it), &offset, sizeof(offset), &read_size);
-            if (ret == 0 || sizeof(offset) != read_size)
+            remote_ptr_t next = 0;
+            BOOL ret = ReadProcessMemory(this->handle, reinterpret_cast<const void *>(offset + *it), &next, sizeof(next), &read_size);
+            if (ret == 0 || sizeof(next) != read_size)
                 return;
+            offset = static_cast<uintptr_t>(next);
         }
         else
         {
             SIZE_T write_size = 0;
-            BOOL ret = WriteProcessMemory(this->handle, (void *)(offset + *it), &buff, sizeof(buff), &write_size);
+            BOOL ret = WriteProcessMemory(this->handle, reinterpret_cast<void *>(offset + *it), &buff, sizeof(buff), &write_size);
             if (ret == 0 || sizeof(buff) != write_size)
                 return;
         }
