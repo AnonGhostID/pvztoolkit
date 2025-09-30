@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QIcon>
 #include <QPixmap>
+#include <QImage>
 #include <QSplashScreen>
 #include <QFile>
 #include <QDialog>
@@ -28,7 +29,7 @@
 
 // Compile-time checks
 static_assert(_MSC_VER >= 1916);
-static_assert(sizeof(void *) == 4);
+static_assert(sizeof(void *) == 4 || sizeof(void *) == 8);
 
 // UI Mode Selector Dialog
 class UIModeSelector : public QDialog
@@ -241,7 +242,7 @@ int main(int argc, char **argv)
     HICON hIcon = LoadIconW(GetModuleHandle(NULL), MAKEINTRESOURCEW(IDI_ICON));
     if (hIcon)
     {
-        toolkit.setWindowIcon(QIcon(QPixmap::fromWinHICON(hIcon)));
+        toolkit.setWindowIcon(QIcon(QPixmap::fromImage(QImage::fromHICON(hIcon))));
         DestroyIcon(hIcon);
     }
     

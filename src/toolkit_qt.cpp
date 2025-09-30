@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QStandardPaths>
 #include <QUrl>
 
 #include <fstream>
@@ -99,9 +100,9 @@ void QtToolkit::connectSignals()
     connect(button_set_spawn, &QPushButton::clicked, this, &QtToolkit::cb_set_spawn);
     
     // Connect lineup tab
-    connect(button_load_lineup, &QPushButton::clicked, this, &QtWindow::cb_load_lineup);
-    connect(choice_scene, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtWindow::cb_switch_lineup_scene);
-    connect(choice_mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtWindow::cb_mode);
+    connect(button_load_lineup, &QPushButton::clicked, this, &QtToolkit::cb_load_lineup);
+    connect(choice_scene, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtToolkit::cb_switch_lineup_scene);
+    connect(choice_mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtToolkit::cb_mode);
     
     // Others Tab
     connect(button_music, &QPushButton::clicked, this, &QtToolkit::cb_music);

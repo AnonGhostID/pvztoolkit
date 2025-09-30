@@ -23,6 +23,9 @@ public:
     ~QtToolkit();
 
     std::filesystem::path current_path;
+    using QtWindow::cb_load_lineup;
+    using QtWindow::cb_switch_lineup_scene;
+    using QtWindow::cb_mode;
     
 private:
     void connectSignals();
@@ -109,7 +112,10 @@ public slots:
     void cb_debug_mode();
     void cb_speed();
     void cb_limbo_page();
-    
+    void cb_scheme();
+    void cb_document();
+    void cb_about();
+
 protected:
     void cb_find_result(int) override;
 };
