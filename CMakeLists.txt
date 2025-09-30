@@ -31,6 +31,10 @@ if(USE_QT_UI)
         ./src/utils.cpp
         ./src/window_qt.cpp
     )
+    set(PZTK_QT_HEADERS
+        ./inc/toolkit_qt.h
+        ./inc/window_qt.h
+    )
     message(STATUS "Qt sources: ${PZTK_SRCS}")
 else()
     message(STATUS "Building with FLTK Classic UI")
@@ -52,6 +56,10 @@ else()
 endif()
 
 add_executable(pvztoolkit WIN32 ${PZTK_SRCS})
+
+if(USE_QT_UI)
+    target_sources(pvztoolkit PRIVATE ${PZTK_QT_HEADERS})
+endif()
 
 # target_include_directories(
 #     pvztoolkit PRIVATE
