@@ -123,7 +123,7 @@ void Code::asm_code_inject(HANDLE handle)
         call_addr = call_addr - ((int)addr + pos + 4);
     }
 
-    DWORD write_size = 0;
+    SIZE_T write_size = 0;
     BOOL ret = WriteProcessMemory(handle, addr, this->code, this->length, &write_size);
     if (ret == 0 || write_size != this->length)
     {

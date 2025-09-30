@@ -1,6 +1,14 @@
 
 #include "../inc/lineup.h"
 
+#include <cstring>
+
+#ifdef USE_QT_UI
+#include <QtCore/QByteArray>
+#else
+#include <FL/images/zlib.h>
+#endif
+
 namespace Pt
 {
 
@@ -250,23 +258,59 @@ bool Lineup::lineup_code_to_data()
     if ((this->scene == 2 || this->scene == 3) && (this->rake_row == 3 || this->rake_row == 4))
         return false;
 
-    unsigned long cut_size = 6 * 9 * sizeof(uint16_t);
+    const unsigned long expected_size = ((scene == 2 || scene == 3) ? 6 : 5) * 9 * sizeof(uint16_t);
+
+#ifdef USE_QT_UI
+    QByteArray compressed(reinterpret_cast<const char *>(buffer), static_cast<int>(size - 1));
+    QByteArray envelope;
+    envelope.resize(compressed.size() + 4);
+    envelope[0] = static_cast<char>((expected_size >> 24) & 0xFF);
+    envelope[1] = static_cast<char>((expected_size >> 16) & 0xFF);
+    envelope[2] = static_cast<char>((expected_size >> 8) & 0xFF);
+    envelope[3] = static_cast<char>(expected_size & 0xFF);
+    std::memcpy(envelope.data() + 4, compressed.constData(), static_cast<size_t>(compressed.size()));
+
+    QByteArray uncompressed = qUncompress(envelope);
+    if (uncompressed.size() != static_cast<int>(expected_size))
+        return false;
+
+    std::memcpy(this->items, uncompressed.constData(), expected_size);
+#else
+    unsigned long cut_size = expected_size;
     int ret_decomp = uncompress((unsigned char *)this->items, &cut_size, buffer, size - 1);
     if (ret_decomp != Z_OK)
         return false;
-    if (cut_size != ((scene == 2 || scene == 3) ? 6 : 5) * 9 * sizeof(uint16_t))
+    if (cut_size != expected_size)
         return false;
+#endif
 
     return true;
 }
 
 void Lineup::data_to_lineup_code()
 {
-    unsigned long size = 121; // compressBound(6*9*2)
+    unsigned long size = 0;
     unsigned char buffer[128] = {0};
-    unsigned long cut_size = ((this->scene == 2 || this->scene == 3) ? 6 : 5) * 9 * sizeof(uint16_t);
+    const unsigned long cut_size = ((this->scene == 2 || this->scene == 3) ? 6 : 5) * 9 * sizeof(uint16_t);
+
+#ifdef USE_QT_UI
+    QByteArray raw(reinterpret_cast<const char *>(this->items), static_cast<int>(cut_size));
+    QByteArray compressed = qCompress(raw, 9);
+    if (compressed.size() <= 4)
+        return;
+
+    QByteArray payload = compressed.mid(4);
+    if (payload.size() >= static_cast<int>(sizeof(buffer)))
+        return;
+
+    size = static_cast<unsigned long>(payload.size());
+    std::memcpy(buffer, payload.constData(), static_cast<size_t>(payload.size()));
+#else
+    size = 121; // compressBound(6*9*2)
     compress2(buffer, &size, (unsigned char *)this->items, cut_size, Z_BEST_COMPRESSION);
-    buffer[size - 1 + 1] = (this->rake_row << 4) | (this->scene & 0b00001111);
+#endif
+
+    buffer[size] = (this->rake_row << 4) | (this->scene & 0b00001111);
 
     for (size_t i = 0; i < size + 1; i++)
         buffer[i] = buffer[i] ^ (unsigned char)0x54;

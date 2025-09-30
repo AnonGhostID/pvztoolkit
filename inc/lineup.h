@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include <FL/images/zlib.h>
-
 #include "utils.h"
 
 namespace Pt
