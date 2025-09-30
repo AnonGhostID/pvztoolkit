@@ -18,7 +18,7 @@ PvZ::~PvZ()
 
 void PvZ::asm_code_inject()
 {
-    // if (GameOn()) // 其他地方预先判断了, 这里其实不用
+    // if (GameOn()) // Already checked elsewhere, not actually needed here
     {
         enable_hack(data().block_main_loop, true);
         Sleep(GetFrameDuration() * 2);
@@ -140,7 +140,7 @@ bool PvZ::FindPvZ()
     {
         bool found = false;
 
-        // 优先查找已知标题, 兼顾其他改动了标题的版本
+        // Prioritize finding known titles, compatible with versions that modified title
         if (i != pvz_titles.size())
             found = OpenByWindow(L"MainWindow", pvz_titles[i].c_str());
         else
@@ -158,7 +158,7 @@ bool PvZ::FindPvZ()
             }
         }
 
-        // 注意分支完整
+        // Note: branch completeness
         if (found)
         {
             if (IsValid())
@@ -174,7 +174,7 @@ bool PvZ::FindPvZ()
                     || (pdb.find(".pdb") == none)                                      //
                     || (pdb.find("\\Lawn\\") == none && pdb.find("\\lawn\\") == none)) //
                 {
-                    // 找到的可能是其他宝开游戏
+                    // May have found other PopCap games
                     this->find_result = PVZ_NOT_FOUND;
                 }
                 else
@@ -213,7 +213,7 @@ bool PvZ::FindPvZ()
                     }
                 }
             }
-            else // 没权限拿不到进程句柄
+            else // No permission to get process handle
             {
                 this->find_result = PVZ_OPEN_ERROR;
             }
@@ -223,10 +223,10 @@ bool PvZ::FindPvZ()
             this->find_result = PVZ_NOT_FOUND;
         }
 
-        // 没有找到窗口或者打开进程失败就继续找
+        // Continue searching if window not found or process open failed
         if (this->find_result == PVZ_NOT_FOUND || this->find_result == PVZ_OPEN_ERROR)
             continue;
-        // 找到了支持或者不支持的版本则终止循环
+        // Terminate loop if supported or unsupported version found
         else
             break;
     }
@@ -268,7 +268,7 @@ bool PvZ::GameOn()
     if (on)
     {
 #ifdef _DEBUG
-        std::wcout << L"游戏已经打开, 可以修改." << std::endl;
+        std::wcout << L"Game is open and can be modified." << std::endl;
 #endif
     }
     else
@@ -279,7 +279,7 @@ bool PvZ::GameOn()
         last_find_attempt = now;
         on = FindPvZ();
 #ifdef _DEBUG
-        std::wcout << L"游戏没有正常打开, 重新查找: " << (on ? L"找到了" : L"没找到") << std::endl;
+        std::wcout << L"Game not opened normally, searching again: " << (on ? L"Found" : L"Not found") << std::endl;
 #endif
     }
 
@@ -422,7 +422,7 @@ void PvZ::SetScene(int scene, bool reset)
     if (has_lawn_mower)
         SetLawnMowers(2);
 
-    // 泳池和雾夜仍然保留水波光
+    // Pool and fog night still retain water ripple light
     if (scene != 2 && scene != 3)
     {
         unsigned int particle_system_struct_size = 0x2c;
@@ -484,7 +484,7 @@ int PvZ::GetRowCount()
     return (scene == 2 || scene == 3) ? 6 : 5;
 }
 
-// 以下是修改功能
+// The following are modification features
 
 void PvZ::UnlockTrophy()
 {
@@ -492,7 +492,7 @@ void PvZ::UnlockTrophy()
         return;
 
     auto userdata = ReadMemory<uintptr_t>({data().lawn, data().user_data});
-    if (userdata == 0) // 还没建立用户
+    if (userdata == 0) // User not created yet
         return;
 
     auto playthrough = userdata + data().playthrough;
@@ -613,7 +613,7 @@ void PvZ::UnlockTrophy()
         twiddydinky += 1 * sizeof(int);
     }
 
-    // 年度版成就
+    // GOTY achievements
     if (isGOTY())
     {
         auto achievement = userdata + 0x24;
@@ -631,12 +631,12 @@ void PvZ::UnlockTrophy()
         }
     }
 
-    // 刷新主界面
+    // Refresh main interface
     if (adventure_playthrough == 0 && GameUI() == 1)
     {
-        // TODO 只能在主界面
+        // TODO Only on main interface
         asm_init();
-        asm_push_byte(1); // 显示 Loading
+        asm_push_byte(1); // Show Loading
         asm_mov_exx_dword_ptr(Reg::ECX, data().lawn);
         asm_mov_exx_dword_ptr_exx_add(Reg::ECX, data().game_selector);
         if (this->find_result == PVZ_GOTY_1_1_0_1056_ZH || //
@@ -668,11 +668,11 @@ void PvZ::DirectWin(bool brightest_cob_cannon)
         {
             if (frame_to_wait != 0)
             {
-                // 解除暂停
+                // Unpause
                 PostMessage(hwnd, WM_KEYDOWN, VK_SPACE, 0);
                 PostMessage(hwnd, WM_KEYUP, VK_SPACE, 0);
                 Sleep(frame_to_wait * frame_time);
-                // 暂停
+                // Pause
                 PostMessage(hwnd, WM_KEYDOWN, VK_SPACE, 0);
                 PostMessage(hwnd, WM_KEYUP, VK_SPACE, 0);
             }
@@ -680,7 +680,7 @@ void PvZ::DirectWin(bool brightest_cob_cannon)
         else
         {
             Sleep(frame_to_wait * frame_time);
-            // 暂停
+            // Pause
             PostMessage(hwnd, WM_KEYDOWN, VK_SPACE, 0);
             PostMessage(hwnd, WM_KEYUP, VK_SPACE, 0);
         }
@@ -711,7 +711,7 @@ void PvZ::DirectWin(bool brightest_cob_cannon)
     if (light_cob)
     {
         Sleep(frame_time);
-        // 解除暂停
+        // Unpause
         PostMessage(hwnd, WM_KEYDOWN, VK_SPACE, 0);
         PostMessage(hwnd, WM_KEYUP, VK_SPACE, 0);
     }
@@ -812,7 +812,7 @@ void PvZ::TreeFoodUnlimited(bool on)
         return;
 
 #ifdef _PVZ_BETA_LEAK_SUPPORT
-    // 早期测试版没有智慧树
+    // Early beta has no wisdom tree
     if (this->find_result == PVZ_BETA_0_1_1_1014_EN)
         return;
 #endif
@@ -831,7 +831,7 @@ void PvZ::SetTreeHeight(int height)
         return;
 
 #ifdef _PVZ_BETA_LEAK_SUPPORT
-    // 早期测试版没有智慧树
+    // Early beta has no wisdom tree
     if (this->find_result == PVZ_BETA_0_1_1_1014_EN)
         return;
 #endif
@@ -977,7 +977,7 @@ void PvZ::MixMode(int mode, int level)
     if (ui != 2 && ui != 3)
         return;
 
-    if (mode == 0) // 冒险模式
+    if (mode == 0) // Adventure mode
     {
         WriteMemory<int>(level, {data().lawn, data().user_data, data().level});
         WriteMemory<int>(level, {data().lawn, data().board, data().adventure_level});
@@ -994,7 +994,7 @@ void PvZ::EndlessRounds(int level)
         return;
 
     int mode = GameMode();
-    if (mode == 60 || mode == 70 || (mode >= 11 && mode <= 15)) // 仅限无尽模式
+    if (mode == 60 || mode == 70 || (mode >= 11 && mode <= 15)) // Only for endless mode
     {
         auto indirect_offset = ReadMemory<uintptr_t>({data().lawn, data().board, data().challenge});
         WriteMemory<int>(level, {indirect_offset + data().endless_rounds});
@@ -1032,7 +1032,7 @@ void PvZ::asm_put_plant(int row, int col, int type, bool imitater, bool iz_style
     }
     asm_call(data().call_put_plant);
 
-    // 多余的过程是为了让 eax 值为目标植物的地址以供后续的布阵函数使用
+    // Extra process to make eax value the target plant address for subsequent lineup function use
 
     if (imitater)
     {
@@ -1079,9 +1079,9 @@ void PvZ::PutPlant(int row, int col, int type, bool imitater)
     if (ui != 2 && ui != 3)
         return;
 
-    int row_count = GetRowCount();        // 行数
-    int col_count = (type == 47 ? 8 : 9); // 玉米加农炮不种在九列
-    int width = (type == 47 ? 2 : 1);     // 玉米加农炮宽度两列
+    int row_count = GetRowCount();        // Row count
+    int col_count = (type == 47 ? 8 : 9); // Cob cannon not planted in column 9
+    int width = (type == 47 ? 2 : 1);     // Cob cannon width two columns
     int mode = GameMode();
     bool iz_style = (mode >= 61 && mode <= 70);
     asm_init();
@@ -1147,7 +1147,7 @@ void PvZ::PutZombie(int row, int col, int type)
     if (ui != 2 && ui != 3)
         return;
 
-    if (type == 25) // 僵王
+    if (type == 25) // Dr. Zomboss
     {
         asm_init();
 #ifdef _PVZ_BETA_LEAK_SUPPORT
@@ -1310,7 +1310,7 @@ void PvZ::AutoLadder(bool imitater_pumpkin_only = true)
     if (ui != 2 && ui != 3)
         return;
 
-    ClearGridItems({3}); // 清空所有梯子
+    ClearGridItems({3}); // Clear all ladders
 
     unsigned int plant_struct_size = 0x14c;
 
@@ -1329,14 +1329,14 @@ void PvZ::AutoLadder(bool imitater_pumpkin_only = true)
             auto plant_col = ReadMemory<uint32_t>({plant_offset + data().plant_col + plant_struct_size * i});
             auto plant_imitater = //
                 ReadMemory<int>({plant_offset + data().plant_imitater + plant_struct_size * i}) == 48;
-            // 1.草地 2.裸地 3.泳池
+            // 1.Grass 2.Bare ground 3.Pool
             auto block_type = ReadMemory<int>({data().lawn, data().board,                                 //
                                                data().block_type + 0x04 * plant_row + 0x18 * plant_col}); //
             if (plant_col != 0 && block_type == 1                                                         //
                 && (!imitater_pumpkin_only || (imitater_pumpkin_only && plant_imitater)))                 //
             {
 #ifdef _DEBUG
-                std::wcout << L"搭梯: " << (plant_row + 1) << L" " << (plant_col + 1) << std::endl;
+                std::wcout << L"Place ladder: " << (plant_row + 1) << L" " << (plant_col + 1) << std::endl;
 #endif
                 asm_put_ladder(plant_row, plant_col);
             }
@@ -1442,7 +1442,7 @@ void PvZ::PutRake(int row, int col)
         WriteMemory<uint8_t, 6>(reset_code_rake_row_goty, {data().call_put_rake_row});
 }
 
-// 0.启动 1.删除 2.恢复
+// 0.Start 1.Delete 2.Restore
 void PvZ::SetLawnMowers(int option)
 {
     // #ifdef _DEBUG
@@ -1577,19 +1577,19 @@ void PvZ::KillAllZombies()
     auto zombie_offset = ReadMemory<uintptr_t>({data().lawn, data().board, data().zombie});
     for (size_t i = 0; i < zombie_count_max; i++)
     {
-        if (!ReadMemory<bool>({zombie_offset + data().zombie_dead + i * zombie_struct_size}))     // 没有消失
-            WriteMemory<int>(3, {zombie_offset + data().zombie_status + i * zombie_struct_size}); // 3 秒杀
+        if (!ReadMemory<bool>({zombie_offset + data().zombie_dead + i * zombie_struct_size}))     // Not disappeared
+            WriteMemory<int>(3, {zombie_offset + data().zombie_status + i * zombie_struct_size}); // 3 Instant kill
     }
 }
 
-// 1 墓碑
-// 2 弹坑
+// 1 Grave
+// 2 Crater
 // 3 梯子
-// 4/5 传送门
-// 7 罐子
-// 10 蜗牛
-// 11 钉耙
-// 12 脑子
+// 4/5 Portal
+// 7 Vase
+// 10 Snail
+// 11 Rake
+// 12 Brain
 void PvZ::ClearGridItems(std::vector<int> types)
 {
     if (!GameOn())
@@ -1872,7 +1872,7 @@ int PvZ::GetSlotSeed(int index)
     seed_type = ReadMemory<int>({slot_offset + data().slot_seed_type + index * slot_seed_struct_size});
     seed_type_im = ReadMemory<int>({slot_offset + data().slot_seed_type_im + index * slot_seed_struct_size});
 
-    if (seed_type == 48) // 模仿者
+    if (seed_type == 48) // Imitater
         return seed_type_im + 48;
     else
         return seed_type;
@@ -1931,11 +1931,11 @@ void PvZ::LilyPadOnPool(int from_col, int to_col)
     {
         for (int c = 0; c < 9; c++)
         {
-            // 1.草地 2.裸地 3.泳池
+            // 1.Grass 2.Bare ground 3.Pool
             auto block_type = ReadMemory<int>({data().lawn, data().board,                 //
                                                data().block_type + 0x04 * r + 0x18 * c}); //
             if (block_type == 3 && !has_plant[r][c] && from_col - 1 <= c && c <= to_col - 1)
-                asm_put_plant(r, c, 16, false, false); // 16 睡莲
+                asm_put_plant(r, c, 16, false, false); // 16 Lily Pad
         }
     }
     asm_ret();
@@ -1974,7 +1974,7 @@ void PvZ::FlowerPotOnRoof(int from_col, int to_col)
     for (int r = 0; r < 5; r++)
         for (int c = 0; c < 9; c++)
             if (!has_plant[r][c] && from_col - 1 <= c && c <= to_col - 1)
-                asm_put_plant(r, c, 33, false, false); // 33 花盆
+                asm_put_plant(r, c, 33, false, false); // 33 Flower Pot
     asm_ret();
     asm_code_inject();
 }
@@ -2010,7 +2010,7 @@ void PvZ::Screenshot()
     if (BitBlt(hdcMemDC, 0, 0, cx, cy, hdcWindow, 0, 0, SRCCOPY) == 0)
         goto done;
 
-    // 保存到剪贴板
+    // Save to clipboard
     if (OpenClipboard(nullptr) != 0)
     {
         EmptyClipboard();
@@ -2056,7 +2056,7 @@ Lineup PvZ::GetLineup()
             auto plant_col = ReadMemory<uint32_t>({plant_offset + data().plant_col + plant_struct_size * i});
             auto plant_asleep = ReadMemory<bool>({plant_offset + data().plant_asleep + plant_struct_size * i});
             auto plant_imitater = ReadMemory<int>({plant_offset + data().plant_imitater + plant_struct_size * i}) == 48;
-            if (plant_type == 16 || plant_type == 33) // 睡莲 花盆
+            if (plant_type == 16 || plant_type == 33) // Lily Pad Flower Pot
             {
                 lineup.base[plant_row * 9 + plant_col] = (plant_type == 16) ? 1 : 2;
                 lineup.base_im[plant_row * 9 + plant_col] = plant_imitater ? 1 : 0;
@@ -2090,7 +2090,7 @@ Lineup PvZ::GetLineup()
         {
             auto grid_item_row = ReadMemory<uint32_t>({grid_item_offset + data().grid_item_row + grid_item_struct_size * i});
             auto grid_item_col = ReadMemory<uint32_t>({grid_item_offset + data().grid_item_col + grid_item_struct_size * i});
-            if (grid_item_type == 1) // 墓碑
+            if (grid_item_type == 1) // Grave
             {
                 lineup.base[grid_item_row * 9 + grid_item_col] = 3;
                 lineup.base_im[grid_item_row * 9 + grid_item_col] = 0;
@@ -2099,7 +2099,7 @@ Lineup PvZ::GetLineup()
             {
                 lineup.ladder[grid_item_row * 9 + grid_item_col] = 1;
             }
-            else // 钉耙
+            else // Rake
             {
                 lineup.rake_row = grid_item_row + 1;
             }
@@ -2140,7 +2140,7 @@ void PvZ::SetLineup(Lineup lineup)
     }
 
     asm_init();
-    // 睡莲 花盆
+    // Lily Pad Flower Pot
     for (size_t r = 0; r < 6; r++)
     {
         for (size_t c = 0; c < 9; c++)
@@ -2186,7 +2186,7 @@ void PvZ::SetLineup(Lineup lineup)
                 asm_pop_exx(Reg::EAX);
             }
 
-            // 土豆雷和阳光菇长大
+            // Potato Mine和Sun-shroom长大
             // mov [eax+54],00000001
             if (plant_type == 4 || plant_type == 9)
             {
@@ -2209,7 +2209,7 @@ void PvZ::SetLineup(Lineup lineup)
                 asm_put_plant(r, c, 30, lineup.pumpkin_im[r * 9 + c] == 1, is_iz);
         }
     }
-    // 咖啡豆
+    // Coffee Bean
     for (size_t r = 0; r < 6; r++)
     {
         for (size_t c = 0; c < 9; c++)
@@ -2218,7 +2218,7 @@ void PvZ::SetLineup(Lineup lineup)
                 asm_put_plant(r, c, 35, lineup.coffee_im[r * 9 + c] == 1, is_iz);
         }
     }
-    // 墓碑
+    // Grave
     for (size_t r = 0; r < 6; r++)
     {
         for (size_t c = 0; c < 9; c++)
@@ -2403,7 +2403,7 @@ void PvZ::CustomizeSpawn(std::array<bool, 33> zombies, bool limit_giga, bool sim
         3500, // 铁门
         2000, // 橄榄
         1000, // 舞王
-        0,    // 伴舞
+        0,    // Backup Dancer
         0,    // 鸭子
         2000, // 潜水
         2000, // 冰车
@@ -2421,7 +2421,7 @@ void PvZ::CustomizeSpawn(std::array<bool, 33> zombies, bool limit_giga, bool sim
         0,    // 小鬼
         0,    // 僵博
         4000, // 豌豆
-        3000, // 坚果
+        3000, // Wall-nut
         1000, // 辣椒
         2000, // 机枪
         2000, // 窝瓜

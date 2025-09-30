@@ -26,18 +26,18 @@
 
 #define IDI_ICON 1001
 
-// 要求编译器支持 C++17
+// Requires compiler to support C++17
 static_assert(_MSC_VER >= 1916);
 
-// 编译器目标平台限制为 x86
-// 因为目标应用 (植物大战僵尸1 PC版) 本身是 x86 的
-// 修改器也不需要 x64 的任何优势, 反而增加体积
-// 以及 Visual Studio 不支持 x64 内联汇编
+// Compiler target platform limited to x86
+// Because the target application (Plants vs Zombies 1 PC version) is x86
+// The trainer does not need x64 advantages, and would only increase size
+// And Visual Studio does not support x64 inline assembly
 static_assert(sizeof(void *) == 4);
 
 void window_callback(Fl_Widget *w, void *)
 {
-    // 按 Esc 不退出, 而是还原默认窗口大小
+    // Pressing Esc does not exit, but restores default window size
     if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape)
     {
         if (Fl::screen_scale(((Fl_Window *)w)->screen_num()) != ((Pt::Window *)w)->MinScale())
@@ -51,7 +51,7 @@ void window_callback(Fl_Widget *w, void *)
 
 void callback_pvz_check(void *w)
 {
-    // 定期检查游戏进程状态
+    // Periodically check game process status
     bool on = ((Pt::Toolkit *)w)->pvz->GameOn();
     double t = on ? 0.4 : 0.2;
     Fl::repeat_timeout(t, callback_pvz_check, w);
@@ -62,13 +62,13 @@ void callback_pvz_check(void *w)
 
 /// main ///
 
-Fl_Font ui_font = FL_FREE_FONT + 1; // 界面中文
-Fl_Font ms_font = FL_FREE_FONT + 2; // 等宽英文
+Fl_Font ui_font = FL_FREE_FONT + 1; // UI Chinese
+Fl_Font ms_font = FL_FREE_FONT + 2; // Monospace English
 
 int main(int argc, char **argv)
 {
 #ifdef _DEBUG
-    system("chcp 65001"); // 调试输出中文
+    system("chcp 65001"); // Debug output Chinese
 #endif
 
 #ifdef _DEBUG
@@ -94,10 +94,10 @@ int main(int argc, char **argv)
             return 0xF7;
     }
 
-    // 界面背景颜色
+    // UI background color
     Fl::background(243, 243, 243);
 
-    // 界面字体
+    // UI font
 #if _WIN32_WINNT >= _WIN32_WINNT_VISTA
     Fl::set_font(ui_font, "Microsoft YaHei");
     Fl::set_font(ms_font, "Consolas");
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
         Fl::set_font(ms_font, "Courier New");
 #endif
 
-    // 设置对话框属性
+    // Set dialog properties
 #ifdef _PTK_CHINESE_UI
     fl_message_font(ui_font, 13);
 #else
@@ -125,17 +125,17 @@ int main(int argc, char **argv)
     fl_message_hotspot(1);
 
 #ifdef _PTK_CHINESE_UI
-    fl_cancel = "取消";
-    fl_close = "关闭";
-    fl_no = "否";
-    fl_ok = "好的";
-    fl_yes = "是";
-    Fl_Input::copy_menu_text = "复制";
-    Fl_Input::cut_menu_text = "剪切";
-    Fl_Input::paste_menu_text = "粘贴";
+    fl_cancel = "Cancel";
+    fl_close = "Close";
+    fl_no = "No";
+    fl_ok = "OK";
+    fl_yes = "Yes";
+    Fl_Input::copy_menu_text = "Copy";
+    Fl_Input::cut_menu_text = "Cut";
+    Fl_Input::paste_menu_text = "Paste";
 #endif
 
-    // 设置工具提示的样式
+    // Set tooltip style
     Fl_Tooltip::delay(0.1f);
     Fl_Tooltip::hoverdelay(0.1f);
     Fl_Tooltip::hidedelay(5.0f);
@@ -147,16 +147,16 @@ int main(int argc, char **argv)
     Fl_Tooltip::margin_height(5);
     Fl_Tooltip::wrap_width(400);
 
-    // 初始化随机数种子
+    // Initialize random seed
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    // 第一次调用时启用线程锁机制
+    // Enable thread lock mechanism on first call
     Fl::lock();
 
-    // 启动画面
+    // Splash screen
 
     bool show_splash = true;
-    double dt = 1.2f; // 最短显示时间
+    double dt = 1.2f; // Minimum display time
 
     Fl_Window splash(400 + 2, 225 + 2, "");
     splash.begin();
@@ -199,18 +199,18 @@ int main(int argc, char **argv)
         splash.wait_for_expose();
     }
 
-    clock_t start = clock(); // 开始计时
+    clock_t start = clock(); // Start timing
 
-    // 系统需求
-    // 针对 Windows 2000 和 XP 的编译版本做了一些特殊改动
-    // 在高版本系统上为了避免可能存在的问题, 直接拒绝运行
+    // System requirements
+    // Special modifications for Windows 2000 and XP compilation
+    // On higher version systems, refuse to run to avoid potential problems
 #if _WIN32_WINNT < _WIN32_WINNT_VISTA
     if (IsWindowsVistaOrGreater())
     {
         fl_message_title("PvZ Toolkit");
 #ifdef _PTK_CHINESE_UI
-        fl_alert("正在使用的操作系统不受支持！\n"
-                 "需要 Windows 2000 或者 XP 才能运行。");
+        fl_alert("The operating system in use is not supported!\n"
+                 "Requires Windows 2000 or XP to run。");
 #else
         fl_alert("This operating system is not supported!\n"
                  "Windows 2000 or XP is required to run.");
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-    // 防篡改检测
+    // Anti-tamper Detection
     // This feature is designed for the original author lmintlcx.
     // If you want to make a customized version, delete this code.
 #ifdef _PTK_SIGNATURE_CHECK
@@ -228,8 +228,8 @@ int main(int argc, char **argv)
     if (!Pt::VerifySignature(exePath, "\x21\x13\x67\x0f\x3b\x6c\x60\xaf\x42\x50\x7f\x07\xd3\x97\xbc\xd6"))
     {
 #ifdef _PTK_CHINESE_UI
-        fl_message_title("PvZ Toolkit 防篡改检测");
-        if (fl_choice("本程序可能已经感染病毒，请在官方渠道重新下载！", //
+        fl_message_title("PvZ Toolkit Anti-tamper Detection");
+        if (fl_choice("This program may be infected with a virus, please re-download from official channels!", //
 #else
         fl_message_title("PvZ Toolkit Tamper-proof Detection");
         if (fl_choice("This program may have been infected with a virus, \n"
@@ -242,16 +242,16 @@ int main(int argc, char **argv)
     }
 #endif
 
-    // 只运行单个实例
+    // Run only single instance
     HANDLE m = CreateMutexW(nullptr, true, L"PvZ Toolkit");
     if (GetLastError() == ERROR_ALREADY_EXISTS)
         return -2;
 
 #ifdef _DEBUG
-    std::wcout << L"启动用时(毫秒): " << (clock() - start) << std::endl;
+    std::wcout << L"Startup time (ms): " << (clock() - start) << std::endl;
 #endif
 
-    // 隐藏启动画面
+    // Hide splash screen
     if (show_splash)
     {
         while ((clock() - start) / (double)CLOCKS_PER_SEC < dt)
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
         Fl::check();
     }
 
-    // 显示主窗口
+    // Show main window
 
     Pt::Toolkit pvztoolkit(0, 0, "");
     pvztoolkit.callback(window_callback);
@@ -270,20 +270,20 @@ int main(int argc, char **argv)
     pvztoolkit.pvz->FindPvZ();
     SetForegroundWindow(fl_xid(&pvztoolkit));
 
-    // 标题栏图标
+    // Title bar icon
     HICON hIcon = LoadIconW(fl_display, MAKEINTRESOURCEW(IDI_ICON));
     SendMessageW(fl_xid(&pvztoolkit), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
     SendMessageW(fl_xid(&pvztoolkit), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
 #ifdef _DEBUG
-    // 避免调试的时候频繁输出
+    // Avoid frequent output during debugging
 #else
     Fl::add_timeout(0.01, callback_pvz_check, &pvztoolkit);
 #endif
 
     int ret = Fl::run();
 
-    // 结束主循环后再释放
+    // Release after main loop ends
     ReleaseMutex(m);
     CloseHandle(m);
 

@@ -48,7 +48,7 @@ namespace Pt
 #define EMOJI(e, s) ((std::string(this->emoji ? (e) : "▢") + ((s)[0] == 0 ? "" : " ") + (s)).c_str())
 #endif
 
-// 实现 Fl_Choice 对滚轮的响应
+// Implement Fl_Choice response to scroll wheel
 class Fl_Choice_ : public Fl_Choice
 {
   public:
@@ -60,7 +60,7 @@ class Fl_Choice_ : public Fl_Choice
     bool scrollable = false;
 };
 
-// 实现 Fl_Input 拖入路径之前清空
+// Implement Fl_Input clear before dragging path
 class Fl_Input_ : public Fl_Input
 {
   public:
@@ -69,7 +69,7 @@ class Fl_Input_ : public Fl_Input
     int handle(int);
 };
 
-// 显示出怪详情的表格
+// Table showing spawn details
 class SpawnTable : public Fl_Table
 {
   public:
@@ -78,8 +78,8 @@ class SpawnTable : public Fl_Table
     void UpdateData(std::array<int, 1000>);
 
   public:
-    static const int ROWS = 33;     // 33 种僵尸
-    static const int COLS = 20 + 1; // 20 波 + 总数
+    static const int ROWS = 33;     // 33 types of zombies
+    static const int COLS = 20 + 1; // 20 waves + total
     int data[ROWS][COLS] = {{0}};
     int total = 0;
     void draw_cell(TableContext, int, int, int, int, int, int);

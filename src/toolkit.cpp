@@ -9,11 +9,11 @@ Toolkit::Toolkit(int width, int height, const char *title)
 {
     this->current_path = std::filesystem::current_path();
 
-    // 子窗口
+    // Sub window
 
     window_spawn = new SpawnWindow(0, 0, "");
 
-    // 窗口回调函数
+    // Window callback function
 
     button_show_details->callback(cb_show_details, this);
 
@@ -23,15 +23,15 @@ Toolkit::Toolkit(int width, int height, const char *title)
 
     window_spawn->callback(cb_on_hide_spawn_details, this);
 
-    // 工作类
+    // Worker class
 
     pvz = new PvZ();
     pvz->callback(cb_find_result, this);
-    // pvz->FindPvZ(); // 在 main() 里调用
+    // pvz->FindPvZ(); // Called in main()
 
     pak = new PAK();
 
-    // 工作回调函数
+    // Worker callback function
 
     check_unlock_sun_limit->callback(cb_unlock_sun_limit, this);
     button_sun->callback(cb_set_sun, this);
@@ -113,7 +113,7 @@ Toolkit::Toolkit(int width, int height, const char *title)
     check_limbo_page->callback(cb_limbo_page, this);
 
 #ifdef _PTK_CHINESE_UI
-    check_tooltips->callback(cb_tooltips, this); // 重载
+    check_tooltips->callback(cb_tooltips, this); // Override
 #endif
 
     this->cb_tooltips();
@@ -139,12 +139,12 @@ void Toolkit::cb_tooltips()
 
     if (window_spawn->shown() == 1)
     {
-        button_show_details->copy_label(EMOJI("📉", "隐藏详情"));
+        button_show_details->copy_label(EMOJI("📉", "Hide details"));
         button_show_details->copy_tooltip(on ? "Hide Details" : nullptr);
     }
     else
     {
-        button_show_details->copy_label(EMOJI("📈", "查看详情"));
+        button_show_details->copy_label(EMOJI("📈", "Show details"));
         button_show_details->copy_tooltip(on ? "Show Details" : nullptr);
     }
 #else
@@ -154,7 +154,7 @@ void Toolkit::cb_tooltips()
         button_show_details->copy_label("Show Details");
 #endif
 
-    Window::cb_tooltips(); // 放在最后
+    Window::cb_tooltips(); // Place at the end
 }
 
 void Toolkit::close_all_sub_window()
@@ -190,7 +190,7 @@ void Toolkit::cb_update_details(Fl_Widget *, void *w)
 
 void Toolkit::cb_update_details()
 {
-    // 刷新
+    // Refresh
     window_spawn->button_zombies_list->value(0);
     cb_zombies_list();
 }
@@ -202,7 +202,7 @@ void Toolkit::cb_zombies_list(Fl_Widget *, void *w)
 
 void Toolkit::cb_zombies_list()
 {
-    // 加载
+    // Load
     bool import_success = false;
     if (window_spawn->button_zombies_list->value() == 2)
     {
@@ -223,7 +223,7 @@ void Toolkit::cb_zombies_list()
         if (GetOpenFileNameW(&ofn) == TRUE)
         {
 #ifdef _DEBUG
-            std::wcout << L"打开文件: " << std::wstring(szFileName) << std::endl;
+            std::wcout << L"Open file: " << std::wstring(szFileName) << std::endl;
 #endif
             auto size = std::filesystem::file_size(szFileName);
             if (size == (1 + 1 + 1 + 1000 + 1) * sizeof(int))
@@ -256,14 +256,14 @@ void Toolkit::cb_zombies_list()
 
     if (!pvz->GameOn())
     {
-        // 没有打开游戏
+        // Game not opened
     }
     else
     {
         int game_ui = pvz->GameUI();
         if (game_ui != 2 && game_ui != 3)
         {
-            // 未进入选卡或者战斗界面
+            // Not entered seed selection or battle interface
         }
         else
         {
@@ -280,7 +280,7 @@ void Toolkit::cb_zombies_list()
             }
             else
             {
-                // 不支持非生存模式
+                // Non-survival mode not supported
             }
         }
     }
@@ -290,15 +290,15 @@ void Toolkit::cb_zombies_list()
     if (window_spawn->button_zombies_list->value() == 2 && import_success)
     {
 #ifdef _PTK_CHINESE_UI
-        fl_message_title("加载成功");
-        fl_message("出怪列表已经导入到游戏中.");
+        fl_message_title("LoadSuccess");
+        fl_message("Spawn list has been imported into the game.");
 #else
         fl_message_title("Loaded Successfully");
         fl_message("Zombies list has been imported into the game.");
 #endif
     }
 
-    // 保存
+    // Save
     if (window_spawn->button_zombies_list->value() == 1)
     {
         int data[1 + 1 + 1 + 1000 + 1] = {0};
@@ -340,8 +340,8 @@ void Toolkit::cb_zombies_list()
         {
             outfile.write(reinterpret_cast<char *>(&data), sizeof(data));
 #ifdef _PTK_CHINESE_UI
-            fl_message_title("保存成功");
-            fl_message(std::string("当前出怪列表保存在文件: \n" + filename).c_str());
+            fl_message_title("SaveSuccess");
+            fl_message(std::string("当前出怪列表Save在文件: \n" + filename).c_str());
 #else
             fl_message_title("Saved Successfully");
             fl_message(std::string("Current zombies list is saved in file: \n" + filename).c_str());
@@ -521,7 +521,7 @@ void Toolkit::cb_mix_mode()
     int mode = choice_mode->value();
     int level = choice_adventure->value();
 
-    if (mode == 0) // 冒险模式
+    if (mode == 0) // Adventure Mode
         level++;
 
     pvz->MixMode(mode, level);
@@ -697,10 +697,10 @@ void Toolkit::cb_clear()
 {
     switch (choice_item->value())
     {
-    case 0: // 植物
+    case 0: // Plant
         pvz->ClearAllPlants();
         break;
-    case 1: // 僵尸
+    case 1: // Zombie
         pvz->KillAllZombies();
         break;
     case 2: // 梯子
@@ -916,7 +916,7 @@ void Toolkit::cb_lineup_mode()
 
     if (check_lineup_mode->value())
     {
-        // 勾选时开启所有功能, 然后按钮组恢复原状态
+        // When checked, enable all features, then button group restores original state
         for (size_t i = 0; i < check_buttons.size(); i++)
         {
             check_buttons[i]->deactivate();
@@ -931,7 +931,7 @@ void Toolkit::cb_lineup_mode()
     }
     else
     {
-        // 取消时应用按钮组已勾选状态
+        // When unchecked, apply button group checked state
         for (size_t i = 0; i < check_buttons.size(); i++)
         {
             check_buttons[i]->activate();
@@ -1014,7 +1014,7 @@ void Toolkit::cb_set_lineup()
 {
     std::string str = buffer_lineup_string->text();
 
-    // Base64Url 转标准 Base64
+    // Base64Url to standard Base64
     std::replace(str.begin(), str.end(), '-', '+');
     std::replace(str.begin(), str.end(), '_', '/');
     switch (str.size() % 4)
@@ -1060,7 +1060,7 @@ void Toolkit::cb_set_spawn()
     int game_ui = pvz->GameUI();
     if (game_ui != 2 && game_ui != 3)
         return;
-    // 极限和模拟出怪功能仅适用于生存模式
+    // Extreme and simulate spawn functions only apply to survival mode
     int game_mode = pvz->GameMode();
     if ((game_mode < 1 || game_mode > 15) && spawn_mode != 0)
         return;

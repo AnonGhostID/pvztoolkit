@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 #endif
     
 #ifdef _DEBUG
-    std::wcout << L"启动用时(毫秒): " << (clock() - start) << std::endl;
+    std::wcout << L"Startup time (ms): " << (clock() - start) << std::endl;
 #endif
     
     // Wait for minimum splash screen time

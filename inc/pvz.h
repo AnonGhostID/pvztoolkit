@@ -27,14 +27,14 @@ class PvZ : public Process, public Code, public Data
     PvZ();
     ~PvZ();
 
-    // 安全地注入
+    // Safely inject
     void asm_code_inject();
 
-    // 应用 hack
+    // Apply hack
     template <typename T, size_t size>
     void enable_hack(HACK<T, size>, bool);
 
-    // 应用 hacks
+    // Apply hacks
     template <typename T, size_t size>
     void enable_hack(std::vector<HACK<T, size>>, bool);
 
@@ -48,225 +48,225 @@ class PvZ : public Process, public Code, public Data
     void check_all_hacks();
 #endif
 
-    // 设置查找游戏的回调函数
+    // Set callback function for game search
     void callback(cb_func, void *);
 
-    // 查找植物大战僵尸, 找到了支持的版本返回真
+    // Find Plants vs Zombies, return true if supported version found
     bool FindPvZ();
 
-    // 游戏是否正常开启
-    // 每次修改前都要检查
+    // Check if game is running normally
+    // Must check before each modification
     bool GameOn();
 
-    // 游戏路径
+    // Game path
     std::string GamePath();
 
-    // 游戏模式
+    // Game mode
     int GameMode();
 
-    // 游戏界面
+    // Game UI
     int GameUI();
 
-    // 游戏场地
+    // Game scene
     int GetScene();
     void SetScene(int, bool);
 
-    // 场地行数
+    // Scene row count
     int GetRowCount();
 
   protected:
-    // 回调函数指针和窗口指针
+    // Callback function pointer and window pointer
     cb_func cb_find_result;
     void *window;
 
   public:
-    // 以下是修改功能
+    // The following are modification features
 
-    // 解锁游戏
+    // Unlock game
     void UnlockTrophy();
 
-    // 直接过关
+    // Direct win
     void DirectWin(bool);
 
-    // 去除上限
+    // Remove limit
     void UnlockSunLimit(bool);
 
-    // 修改阳光
+    // Modify sun
     void SetSun(int);
 
-    // 修改金币
+    // Modify money
     void SetMoney(int);
 
-    // 自动收集
+    // Auto collect
     void AutoCollected(bool);
 
-    // 不掉战利品
+    // No loot drop
     void NotDropLoot(bool);
 
-    // 花肥无限
+    // Unlimited fertilizer
     void FertilizerUnlimited(bool);
 
-    // 杀虫剂无限
+    // Unlimited bug spray
     void BugSprayUnlimited(bool);
 
-    // 巧克力无限
+    // Unlimited chocolate
     void ChocolateUnlimited(bool);
 
-    // 树肥无限
+    // Unlimited tree food
     void TreeFoodUnlimited(bool);
 
-    // 智慧树高度
+    // Wisdom tree height
     void SetTreeHeight(int);
 
-    // 免费用卡
+    // Free planting
     void FreePlanting(bool);
 
-    // 随意放置
+    // Place anywhere
     void PlacedAnywhere(bool);
 
-    // 紧密传送
+    // Fast belt
     void FastBelt(bool);
 
-    // 连续铲子
+    // Lock shovel
     void LockShovel(bool);
 
-    // 混乱关卡
+    // Mix mode
     void MixMode(int, int);
 
-    // 无尽轮数
+    // Endless rounds
     void EndlessRounds(int);
 
-    // 生成植物
+    // Generate plant
     void asm_put_plant(int, int, int, bool, bool);
     void PutPlant(int, int, int, bool);
 
-    // 生成僵尸
+    // Generate zombie
     void asm_put_zombie(int, int, int);
     void PutZombie(int, int, int);
 
-    // 生成墓碑
+    // Generate grave
     void asm_put_grave(int, int);
     void PutGrave(int, int);
 
-    // 生成梯子和智能搭梯
+    // Generate ladder and auto ladder
     void asm_put_ladder(int, int);
     void PutLadder(int, int);
     void AutoLadder(bool);
 
-    // 生成钉耙
+    // Generate rake
     void asm_put_rake(int, int);
     void PutRake(int, int);
 
-    // 启动/删除/恢复小推车
+    // Start/delete/restore lawn mowers
     void SetLawnMowers(int);
 
-    // 清除所有植物
+    // Clear all plants
     void ClearAllPlants();
 
-    // 杀死所有僵尸
+    // Kill all zombies
     void KillAllZombies();
 
-    // 清理场地物品
+    // Clear grid items
     void ClearGridItems(std::vector<int>);
 
-    // 植物无敌
+    // Plant invincible
     void PlantInvincible(bool);
 
-    // 植物脆弱
+    // Plant weak
     void PlantWeak(bool);
 
-    // 僵尸无敌
+    // Zombie invincible
     void ZombieInvincible(bool);
 
-    // 僵尸虚弱
+    // Zombie weak
     void ZombieWeak(bool);
 
-    // 立刻装填
+    // Reload instantly
     void ReloadInstantly(bool);
 
-    // 蘑菇睡醒
+    // Mushrooms awake
     void MushroomsAwake(bool);
 
-    // 暂停刷怪
+    // Stop spawning
     void StopSpawning(bool);
 
-    // 停滞不前
+    // Stop zombies
     void StopZombies(bool);
 
-    // 锁定黄油
+    // Lock butter
     void LockButter(bool);
 
-    // 不留弹坑
+    // No crater
     void NoCrater(bool);
 
-    // 不磨冰道
+    // No ice trail
     void NoIceTrail(bool);
 
-    // 小丑(辣椒)不爆
+    // Zombie (pepper) not explode
     void ZombieNotExplode(bool);
 
-    // 获取卡槽某格卡片, 模仿者额外加 48
+    // Get seed in slot, imitater adds 48
     int GetSlotSeed(int);
 
-    // 修改卡槽某格卡片
+    // Modify seed in slot
     void SetSlotSeed(int, int, bool);
 
-    // 水路种睡莲
+    // Plant lily pad on pool
     void LilyPadOnPool(int, int);
 
-    // 屋顶放花盆
+    // Place flower pot on roof
     void FlowerPotOnRoof(int, int);
 
-    // 窗口截图
+    // Window screenshot
     void Screenshot();
 
-    // 获取代码
+    // Get lineup
     Lineup GetLineup();
 
-    // 布置阵型
+    // Set lineup
     void SetLineup(Lineup);
 
-    // 根据出怪种类生成出怪列表
+    // Generate spawn list based on zombie types
     void generate_spawn_list();
 
-    // 更新选卡界面的出怪预览
+    // Update spawn preview in seed selection interface
     void update_spawn_preview();
 
-    // 获取刷怪列表
+    // Get spawn list
     std::array<int, 1000> GetSpawnList();
 
-    // 修改刷怪列表
+    // Modify spawn list
     void SetSpawnList(std::array<int, 1000>);
 
-    // 内置函数生成出怪列表
+    // Internal function to generate spawn list
     void InternalSpawn(std::array<bool, 33>);
 
-    // 自定义填充出怪列表
+    // Custom fill spawn list
     void CustomizeSpawn(std::array<bool, 33>, bool, bool, int);
 
-    // 修改背景音乐
+    // Modify background music
     void SetMusic(int);
 
-    // 清除浓雾
+    // Clear fog
     void NoFog(bool);
 
-    // 罐子透视
+    // See vase
     void SeeVase(bool);
 
-    // 后台运行
+    // Background running
     void BackgroundRunning(bool);
 
-    // 存档只读
+    // Userdata readonly
     void UserdataReadonly(bool);
 
-    // 内置调试模式
+    // Built-in debug mode
     void DebugMode(int);
 
-    // 帧生成时间
+    // Frame duration
     int GetFrameDuration();
     void SetFrameDuration(int);
 
-    // 显示隐藏关卡
+    // Show hidden levels
     void UnlockLimboPage(bool);
 
   private:

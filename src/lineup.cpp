@@ -90,21 +90,21 @@ void Lineup::Init(const std::string &string)
     for (int i = 0; i < GRID; i++)
     {
         if (plant[i] == 48)
-            this->weight += 100000000000000; // 春哥
+            this->weight += 100000000000000; // Chunge
         if (plant[i] == 43)
-            this->weight += 1000000000000; // 曾哥
+            this->weight += 1000000000000; // Zengge
         if (plant[i] == 42)
-            this->weight += 10000000000; // 双子
+            this->weight += 10000000000; // Twins
         if (plant[i] == 45)
-            this->weight += 100000000; // 冰瓜
+            this->weight += 100000000; // Winter Melon
         if (pumpkin[i] == 1)
-            this->weight += 1000000; // 南瓜
+            this->weight += 1000000; // Pumpkin
         if (base[i] == 1)
-            this->weight += 10000; // 睡莲
+            this->weight += 10000; // Lily Pad
         if (base[i] == 2)
-            this->weight += 100; // 花盆
+            this->weight += 100; // Flower Pot
         if (ladder[i] == 1)
-            this->weight += 1; // 梯子
+            this->weight += 1; // Ladder
     }
 }
 
@@ -173,7 +173,7 @@ bool Lineup::lineup_string_to_data()
         if (item_type < 0 || item_type > 0x32)
             continue;
 
-        if (item_type == 16 || item_type == 33) // 睡莲 花盆
+        if (item_type == 16 || item_type == 33) // Lily Pad Flower Pot
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             int item_col = atoi(item_str[2].c_str()) - 1;
@@ -181,14 +181,14 @@ bool Lineup::lineup_string_to_data()
             this->base[item_row * 9 + item_col] = (item_type == 16) ? 1 : 2;
             this->base_im[item_row * 9 + item_col] = item_imitater ? 1 : 0;
         }
-        else if (item_type == 50) // 墓碑
+        else if (item_type == 50) // Grave
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             int item_col = atoi(item_str[2].c_str()) - 1;
             this->base[item_row * 9 + item_col] = 3;
             this->base_im[item_row * 9 + item_col] = 0;
         }
-        else if (item_type == 30) // 南瓜
+        else if (item_type == 30) // Pumpkin
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             int item_col = atoi(item_str[2].c_str()) - 1;
@@ -196,7 +196,7 @@ bool Lineup::lineup_string_to_data()
             this->pumpkin[item_row * 9 + item_col] = 1;
             this->pumpkin_im[item_row * 9 + item_col] = item_imitater ? 1 : 0;
         }
-        else if (item_type == 35) // 咖啡
+        else if (item_type == 35) // Coffee
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             int item_col = atoi(item_str[2].c_str()) - 1;
@@ -204,18 +204,18 @@ bool Lineup::lineup_string_to_data()
             this->coffee[item_row * 9 + item_col] = 1;
             this->coffee_im[item_row * 9 + item_col] = item_imitater ? 1 : 0;
         }
-        else if (item_type == 48) // 梯子 0x30
+        else if (item_type == 48) // Ladder 0x30
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             int item_col = atoi(item_str[2].c_str()) - 1;
             this->ladder[item_row * 9 + item_col] = 1;
         }
-        else if (item_type == 49) // 钉耙 0x31
+        else if (item_type == 49) // Rake 0x31
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             this->rake_row = item_row + 1;
         }
-        else // 主要植物
+        else // Main plant
         {
             int item_row = atoi(item_str[1].c_str()) - 1;
             int item_col = atoi(item_str[2].c_str()) - 1;
@@ -243,7 +243,7 @@ bool Lineup::lineup_code_to_data()
 
     size_t len = this->lineup_code.length();
     auto written = base64_decode(buffer, this->lineup_code.c_str(), len);
-    // TODO 检测失败
+    // TODO Detection failed
     size = written;
 
     for (size_t i = 0; i < size; i++)
