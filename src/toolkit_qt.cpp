@@ -4,7 +4,9 @@
 #include <QFileDialog>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QMetaObject>
 #include <QStandardPaths>
+#include <QThread>
 #include <QUrl>
 
 #include <fstream>
@@ -13,6 +15,29 @@
 namespace Pt
 {
 
+namespace
+{
+    void pvz_find_result_dispatch(void *ctx, int result)
+    {
+        auto *toolkit = static_cast<Pt::QtToolkit *>(ctx);
+        if (!toolkit)
+            return;
+
+        auto deliver = [toolkit, result]() {
+            toolkit->cb_find_result(result);
+        };
+
+        if (toolkit->thread() == QThread::currentThread())
+        {
+            deliver();
+        }
+        else
+        {
+            QMetaObject::invokeMethod(toolkit, deliver, Qt::QueuedConnection);
+        }
+    }
+}
+
 QtToolkit::QtToolkit(QWidget *parent)
     : QtWindow(parent)
 {
@@ -20,6 +45,7 @@ QtToolkit::QtToolkit(QWidget *parent)
     
     // Initialize PvZ and PAK
     pvz = new PvZ();
+    pvz->callback(pvz_find_result_dispatch, this);
     pak = new PAK();
     
     // Connect all signals to slots
@@ -28,6 +54,8 @@ QtToolkit::QtToolkit(QWidget *parent)
 
 QtToolkit::~QtToolkit()
 {
+    if (pvz)
+        pvz->callback(nullptr, nullptr);
     delete pvz;
     delete pak;
     if (window_spawn)
