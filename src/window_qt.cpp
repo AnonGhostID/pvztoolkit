@@ -51,7 +51,7 @@ QtSpawnWindow::QtSpawnWindow(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Spawn Details");
-    resize(1000, 700);
+    resize(1000, 600);
     
     QVBoxLayout *layout = new QVBoxLayout(this);
     
@@ -115,7 +115,7 @@ QtWindow::QtWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle(QString("PvZ Toolkit %1 (Modern UI)").arg(VERSION_NAME));
-    resize(900, 650);
+    resize(900, 550);
     
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
