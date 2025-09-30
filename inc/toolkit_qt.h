@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <limits>
 
 #include "lineup.h"
 #include "pak.h"
@@ -118,6 +119,9 @@ public slots:
 
 protected:
     void cb_find_result(int) override;
+
+private:
+    int last_status_result = std::numeric_limits<int>::min();
 };
 
 } // namespace Pt

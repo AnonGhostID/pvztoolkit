@@ -158,6 +158,9 @@ void QtToolkit::close_all_sub_window()
 void QtToolkit::cb_find_result(int result)
 {
     this->result = result;
+
+    if (result == last_status_result)
+        return;
     
     QString statusText;
     QString statusStyle;
@@ -191,6 +194,7 @@ void QtToolkit::cb_find_result(int result)
     
     game_status->setText(statusText);
     game_status->setStyleSheet(statusStyle);
+    last_status_result = result;
 }
 
 // Resource Tab Callbacks
