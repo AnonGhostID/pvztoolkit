@@ -131,6 +131,11 @@ bool PvZ::FindPvZ()
         L"Piante contro zombi 1.2.0.1093",        //
     };
 
+    std::vector<std::wstring> pvz_processes = {
+        L"PlantsVsZombies.exe",
+        L"popcapgame1.exe"
+    };
+
     for (size_t i = 0; i < pvz_titles.size() + 1; i++)
     {
         bool found = false;
@@ -140,6 +145,18 @@ bool PvZ::FindPvZ()
             found = OpenByWindow(L"MainWindow", pvz_titles[i].c_str());
         else
             found = OpenByWindow(L"MainWindow", nullptr);
+
+        if (!found)
+        {
+            for (const auto &process_name : pvz_processes)
+            {
+                if (OpenByProcess(process_name.c_str()))
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
 
         // 注意分支完整
         if (found)

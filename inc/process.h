@@ -26,6 +26,7 @@ class Process
 
     // 根据窗口类名和标题打开进程
     bool OpenByWindow(const wchar_t *, const wchar_t *);
+    bool OpenByProcess(const wchar_t *);
 
     // 进程可用性
     bool IsValid();
