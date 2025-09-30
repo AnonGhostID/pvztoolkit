@@ -115,7 +115,7 @@ QtWindow::QtWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle(QString("PvZ Toolkit %1 (Modern UI)").arg(VERSION_NAME));
-    resize(900, 550);
+    resize(800, 450);
     
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
