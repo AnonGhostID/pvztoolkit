@@ -120,7 +120,7 @@ void Code::asm_code_inject(HANDLE handle)
     {
         unsigned int pos = this->calls_pos[i];
         int &call_addr = (int &)(this->code[pos]);
-        call_addr = call_addr - ((int)addr + pos + 4);
+        call_addr = call_addr - ((int)(intptr_t)addr + pos + 4);
     }
 
     SIZE_T write_size = 0;
