@@ -23,18 +23,10 @@ namespace
         if (!toolkit)
             return;
 
-        auto deliver = [toolkit, result]() {
-            toolkit->cb_find_result(result);
-        };
+        const Qt::ConnectionType type =
+            (toolkit->thread() == QThread::currentThread()) ? Qt::DirectConnection : Qt::QueuedConnection;
 
-        if (toolkit->thread() == QThread::currentThread())
-        {
-            deliver();
-        }
-        else
-        {
-            QMetaObject::invokeMethod(toolkit, deliver, Qt::QueuedConnection);
-        }
+        QMetaObject::invokeMethod(toolkit, "cb_find_result", type, Q_ARG(int, result));
     }
 }
 
