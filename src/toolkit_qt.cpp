@@ -5,9 +5,6 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QUrl>
-#include <QThread>
-#include <QFuture>
-#include <QtConcurrent>
 
 #include <fstream>
 #include <sstream>
@@ -100,6 +97,11 @@ void QtToolkit::connectSignals()
     // Spawn Tab
     connect(button_show_details, &QPushButton::clicked, this, &QtToolkit::cb_show_details);
     connect(button_set_spawn, &QPushButton::clicked, this, &QtToolkit::cb_set_spawn);
+    
+    // Connect lineup tab
+    connect(button_load_lineup, &QPushButton::clicked, this, &QtWindow::cb_load_lineup);
+    connect(choice_scene, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtWindow::cb_switch_lineup_scene);
+    connect(choice_mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtWindow::cb_mode);
     
     // Others Tab
     connect(button_music, &QPushButton::clicked, this, &QtToolkit::cb_music);
@@ -459,12 +461,56 @@ void QtToolkit::cb_auto_ladder()
 
 void QtToolkit::cb_put_lily_pad()
 {
-    // Implementation for putting lily pads
+    if (!pvz->GameOn())
+    {
+        QMessageBox::warning(this, "Error", "Please start the game first!");
+        return;
+    }
+    
+    int scene = choice_scene->currentIndex();
+    if (scene != 2 && scene != 3)
+    {
+        QMessageBox::warning(this, "Error", "Lily pads can only be placed in Pool or Fog scenes!");
+        return;
+    }
+    
+    // Place lily pads in pool rows
+    for (int row = 2; row < 4; row++)
+    {
+        for (int col = lily_pad_col_lower[row]; col <= lily_pad_col_upper[row]; col++)
+        {
+            pvz->PutPlant(row, col, 16, false); // 16 is lily pad
+        }
+    }
+    
+    QMessageBox::information(this, "Success", "Lily pads placed!");
 }
 
 void QtToolkit::cb_put_flower_pot()
 {
-    // Implementation for putting flower pots
+    if (!pvz->GameOn())
+    {
+        QMessageBox::warning(this, "Error", "Please start the game first!");
+        return;
+    }
+    
+    int scene = choice_scene->currentIndex();
+    if (scene != 4)
+    {
+        QMessageBox::warning(this, "Error", "Flower pots can only be placed in Roof scene!");
+        return;
+    }
+    
+    // Place flower pots on roof
+    for (int row = 0; row < 5; row++)
+    {
+        for (int col = flower_pot_col_lower[row]; col <= flower_pot_col_upper[row]; col++)
+        {
+            pvz->PutPlant(row, col, 33, false); // 33 is flower pot
+        }
+    }
+    
+    QMessageBox::information(this, "Success", "Flower pots placed!");
 }
 
 void QtToolkit::cb_reset_scene()
@@ -476,15 +522,15 @@ void QtToolkit::cb_reset_scene()
 void QtToolkit::cb_get_lineup()
 {
     Lineup lineup = pvz->GetLineup();
-    QString code = QString::fromStdString(lineup.ToString());
+    QString code = QString::fromStdString(lineup.lineup_code);
     editor_lineup_string->setPlainText(code);
 }
 
 void QtToolkit::cb_set_lineup()
 {
     QString code = editor_lineup_string->toPlainText();
-    Lineup lineup;
-    if (lineup.FromString(code.toStdString()))
+    Lineup lineup(code.toStdString());
+    if (lineup.OK())
     {
         pvz->SetLineup(lineup);
         QMessageBox::information(this, "Success", "Lineup applied!");
@@ -509,6 +555,7 @@ void QtToolkit::cb_show_details()
     {
         window_spawn = new QtSpawnWindow(this);
         connect(window_spawn, &QDialog::finished, this, &QtToolkit::cb_on_hide_spawn_details);
+        connect(window_spawn->button_update_details, &QPushButton::clicked, this, &QtToolkit::cb_update_details);
     }
     
     if (window_spawn->isVisible())
@@ -519,6 +566,7 @@ void QtToolkit::cb_show_details()
     {
         cb_update_details();
         window_spawn->show();
+        button_show_details->setText("📉 Hide Details");
     }
 }
 
@@ -537,7 +585,7 @@ void QtToolkit::cb_zombies_list()
 
 void QtToolkit::cb_on_hide_spawn_details()
 {
-    button_show_details->setText("📈 Show Details");
+    button_show_details->setText("📊 Show Details");
 }
 
 void QtToolkit::cb_set_spawn()

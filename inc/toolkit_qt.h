@@ -6,6 +6,7 @@
 #include <array>
 #include <string>
 
+#include "lineup.h"
 #include "pak.h"
 #include "pvz.h"
 #include "window_qt.h"

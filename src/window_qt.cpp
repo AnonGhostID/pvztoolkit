@@ -1,6 +1,8 @@
 #include "../inc/window_qt.h"
 #include "../inc/utils.h"
 
+#include <fstream>
+
 #include <QApplication>
 #include <QScreen>
 #include <QMessageBox>
@@ -9,6 +11,7 @@
 #include <QTextStream>
 #include <QStandardPaths>
 #include <QHeaderView>
+#include <QAbstractItemView>
 
 namespace Pt
 {
@@ -544,6 +547,11 @@ void QtWindow::createSpawnTab()
     QPushButton *btnCustom = new QPushButton("Custom Mode");
     QPushButton *btnClear = new QPushButton("Clear Selection");
     
+    connect(btnNatural, &QPushButton::clicked, this, &QtWindow::cb_spawn_mutex_0);
+    connect(btnExtreme, &QPushButton::clicked, this, &QtWindow::cb_spawn_mutex_3);
+    connect(btnCustom, &QPushButton::clicked, this, &QtWindow::cb_switch_spawn_mode);
+    connect(btnClear, &QPushButton::clicked, this, &QtWindow::cb_clear_checked_zombies);
+    
     presetsLayout->addWidget(btnNatural);
     presetsLayout->addWidget(btnExtreme);
     presetsLayout->addWidget(btnCustom);
@@ -835,6 +843,167 @@ void QtWindow::applyModernTheme()
     setStyleSheet(darkTheme);
 }
 
+void QtWindow::applyLightTheme()
+{
+    QString lightTheme = R"(
+        QMainWindow {
+            background-color: #f5f5f5;
+        }
+        QWidget {
+            background-color: #f5f5f5;
+            color: #2d2d2d;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 10pt;
+        }
+        QTabWidget::pane {
+            border: 1px solid #d0d0d0;
+            background-color: #ffffff;
+            border-radius: 4px;
+        }
+        QTabBar::tab {
+            background-color: #e0e0e0;
+            color: #505050;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+        QTabBar::tab:selected {
+            background-color: #0d7377;
+            color: #ffffff;
+        }
+        QTabBar::tab:hover {
+            background-color: #d0d0d0;
+        }
+        QGroupBox {
+            background-color: #ffffff;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            margin-top: 12px;
+            padding-top: 12px;
+            font-weight: bold;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 12px;
+            padding: 0 6px;
+            color: #0d7377;
+        }
+        QPushButton {
+            background-color: #0d7377;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #14a5aa;
+        }
+        QPushButton:pressed {
+            background-color: #0a5c5f;
+        }
+        QPushButton:disabled {
+            background-color: #d0d0d0;
+            color: #909090;
+        }
+        QCheckBox, QRadioButton {
+            spacing: 8px;
+            color: #2d2d2d;
+        }
+        QCheckBox::indicator, QRadioButton::indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
+            border: 2px solid #b0b0b0;
+            background-color: #ffffff;
+        }
+        QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+            background-color: #0d7377;
+            border-color: #0d7377;
+        }
+        QCheckBox::indicator:hover, QRadioButton::indicator:hover {
+            border-color: #0d7377;
+        }
+        QComboBox, QSpinBox, QLineEdit, QTextEdit {
+            background-color: #ffffff;
+            border: 1px solid #b0b0b0;
+            border-radius: 4px;
+            padding: 6px;
+            color: #2d2d2d;
+        }
+        QComboBox:hover, QSpinBox:hover, QLineEdit:hover, QTextEdit:hover {
+            border-color: #0d7377;
+        }
+        QComboBox:focus, QSpinBox:focus, QLineEdit:focus, QTextEdit:focus {
+            border-color: #14a5aa;
+            border-width: 2px;
+        }
+        QComboBox::drop-down {
+            border: none;
+            width: 20px;
+        }
+        QComboBox::down-arrow {
+            image: none;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #2d2d2d;
+            margin-right: 5px;
+        }
+        QLabel {
+            background-color: transparent;
+            color: #2d2d2d;
+        }
+        QTableWidget {
+            background-color: #ffffff;
+            alternate-background-color: #f9f9f9;
+            gridline-color: #d0d0d0;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+        }
+        QHeaderView::section {
+            background-color: #e0e0e0;
+            color: #0d7377;
+            padding: 6px;
+            border: none;
+            font-weight: bold;
+        }
+        QScrollBar:vertical {
+            background-color: #e0e0e0;
+            width: 12px;
+            border-radius: 6px;
+        }
+        QScrollBar::handle:vertical {
+            background-color: #0d7377;
+            border-radius: 6px;
+            min-height: 20px;
+        }
+        QScrollBar::handle:vertical:hover {
+            background-color: #14a5aa;
+        }
+        QScrollBar:horizontal {
+            background-color: #e0e0e0;
+            height: 12px;
+            border-radius: 6px;
+        }
+        QScrollBar::handle:horizontal {
+            background-color: #0d7377;
+            border-radius: 6px;
+            min-width: 20px;
+        }
+        QScrollBar::add-line, QScrollBar::sub-line {
+            background: none;
+            border: none;
+        }
+        QStatusBar {
+            background-color: #e0e0e0;
+            color: #2d2d2d;
+        }
+    )";
+    
+    setStyleSheet(lightTheme);
+}
+
 void QtWindow::ReadSettings()
 {
     QSettings settings("PvZToolkit", "QtModernUI");
@@ -849,15 +1018,109 @@ void QtWindow::WriteSettings()
     settings.setValue("currentTab", tabs->currentIndex());
 }
 
-// Stub implementations for slots (to be implemented in toolkit_qt.cpp)
+// Stub implementations for slots (to be implemented in toolkit_qt.cpp or overridden)
 void QtWindow::cb_find_result(int) {}
-void QtWindow::keep_selected_feature() {}
-void QtWindow::cb_mode() {}
-void QtWindow::cb_load_lineup() {}
-void QtWindow::import_lineup_list(bool) {}
-void QtWindow::import_lineup_list_file(std::wstring) {}
-void QtWindow::cb_switch_lineup_scene() {}
-void QtWindow::cb_show_lineup_string() {}
+void QtWindow::keep_selected_feature()
+{
+    // Keep checkboxes state when switching tabs
+}
+
+void QtWindow::cb_mode()
+{
+    int mode = choice_mode->currentIndex();
+    if (mode == 0)
+    {
+        choice_adventure->setEnabled(true);
+    }
+    else
+    {
+        choice_adventure->setEnabled(false);
+    }
+}
+void QtWindow::cb_load_lineup()
+{
+    QString file = QFileDialog::getOpenFileName(this, "Load Lineup List", 
+                                                QString(), "Text Files (*.txt);;All Files (*)");
+    if (!file.isEmpty())
+    {
+        import_lineup_list_file(file.toStdWString());
+    }
+}
+void QtWindow::import_lineup_list(bool reload)
+{
+    if (reload)
+    {
+        lineups.clear();
+        for (int i = 0; i < 6; i++)
+        {
+            lineup_count[i] = 0;
+            choice_lineup_name[i]->clear();
+        }
+    }
+    
+    for (auto &lineup : lineups)
+    {
+        if (lineup.scene >= 0 && lineup.scene < 6)
+        {
+            choice_lineup_name[lineup.scene]->addItem(QString::fromStdString(lineup.lineup_name));
+            lineup_count[lineup.scene]++;
+        }
+    }
+}
+void QtWindow::import_lineup_list_file(std::wstring filename)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        QMessageBox::warning(this, "Error", "Failed to open lineup file!");
+        return;
+    }
+    
+    lineups.clear();
+    std::string line;
+    while (std::getline(file, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
+            
+        Lineup lineup(line);
+        if (lineup.OK())
+        {
+            lineups.push_back(lineup);
+        }
+    }
+    
+    file.close();
+    import_lineup_list(true);
+    
+    QMessageBox::information(this, "Success", 
+                             QString("Loaded %1 lineups").arg(lineups.size()));
+}
+void QtWindow::cb_switch_lineup_scene()
+{
+    int scene = choice_scene->currentIndex();
+    // Update UI based on selected scene
+    if (scene >= 0 && scene < 6)
+    {
+        // Populate lineup choices for this scene
+        choice_lineup_name[scene]->setEnabled(lineup_count[scene] > 0);
+    }
+}
+
+void QtWindow::cb_show_lineup_string()
+{
+    // Show lineup string in editor
+    int scene = choice_scene->currentIndex();
+    if (scene >= 0 && scene < 6)
+    {
+        int idx = choice_lineup_name[scene]->currentIndex();
+        if (idx >= 0 && idx < lineups.size())
+        {
+            QString code = QString::fromStdString(lineups[idx].lineup_code);
+            editor_lineup_string->setPlainText(code);
+        }
+    }
+}
 void QtWindow::cb_copy_lineup()
 {
     QString code = editor_lineup_string->toPlainText();
@@ -869,12 +1132,72 @@ void QtWindow::cb_paste_lineup()
     QString code = QApplication::clipboard()->text();
     editor_lineup_string->setPlainText(code);
 }
-void QtWindow::cb_spawn_mutex_0() {}
-void QtWindow::cb_spawn_mutex_3() {}
-void QtWindow::cb_spawn_count_check() {}
-void QtWindow::cb_clear_checked_zombies() {}
-void QtWindow::cb_disable_limit_species() {}
-void QtWindow::cb_switch_spawn_mode() {}
+void QtWindow::cb_spawn_mutex_0()
+{
+    // Natural spawn mode
+    for (int i = 0; i < 20; i++)
+    {
+        check_zombie[i]->setChecked(false);
+    }
+    // Select natural zombies
+    int natural[] = {0, 2, 4, 5, 6, 7, 11, 12, 15, 17, 22, 23};
+    for (int idx : natural)
+    {
+        if (idx < 20)
+            check_zombie[idx]->setChecked(true);
+    }
+}
+
+void QtWindow::cb_spawn_mutex_3()
+{
+    // Extreme spawn mode
+    for (int i = 0; i < 20; i++)
+    {
+        check_zombie[i]->setChecked(false);
+    }
+    // Select extreme zombies
+    int extreme[] = {3, 4, 7, 8, 12, 15, 16, 17, 18, 22, 23};
+    for (int idx : extreme)
+    {
+        if (idx < 20)
+            check_zombie[idx]->setChecked(true);
+    }
+}
+
+void QtWindow::cb_spawn_count_check()
+{
+    int count = 0;
+    for (int i = 0; i < 20; i++)
+    {
+        if (check_zombie[i]->isChecked())
+            count++;
+    }
+    
+    if (count == 0)
+    {
+        QMessageBox::warning(this, "Warning", "No zombies selected!");
+    }
+}
+
+void QtWindow::cb_clear_checked_zombies()
+{
+    for (int i = 0; i < 20; i++)
+    {
+        check_zombie[i]->setChecked(false);
+    }
+}
+
+void QtWindow::cb_disable_limit_species()
+{
+    limit_species = !limit_species;
+    check_giga_limit->setChecked(limit_species);
+}
+
+void QtWindow::cb_switch_spawn_mode()
+{
+    // Toggle spawn mode
+    limit_species = !limit_species;
+}
 void QtWindow::cb_open_file()
 {
     QString file = QFileDialog::getOpenFileName(this, "Select PAK File", QString(), "PAK Files (*.pak);;All Files (*)");
@@ -892,7 +1215,15 @@ void QtWindow::cb_open_dir()
         input_dir->setText(dir);
     }
 }
-void QtWindow::cb_scheme() {}
+void QtWindow::cb_scheme()
+{
+    int scheme = choice_scheme->currentIndex();
+    if (scheme == 0) {
+        applyModernTheme();
+    } else {
+        applyLightTheme();
+    }
+}
 void QtWindow::cb_document() {}
 void QtWindow::cb_about() {}
 

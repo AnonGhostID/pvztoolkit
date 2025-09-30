@@ -46,11 +46,11 @@ public:
     
     void UpdateData(std::array<int, 1000> spawn_list);
     
-private:
     QTableWidget *table_spawn;
     QPushButton *button_update_details;
     QMenu *menu_zombies_list;
-    
+
+private:
     static const int ROWS = 33;
     static const int COLS = 21;
     int data[ROWS][COLS] = {{0}};
@@ -227,6 +227,7 @@ private:
     void createSpawnTab();
     void createOthersTab();
     void applyModernTheme();
+    void applyLightTheme();
 };
 
 } // namespace Pt

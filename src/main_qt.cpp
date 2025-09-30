@@ -5,8 +5,6 @@
 #include <QPixmap>
 #include <QSplashScreen>
 #include <QFile>
-#include <QThread>
-#include <QMutex>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -35,6 +33,8 @@ static_assert(sizeof(void *) == 4);
 // UI Mode Selector Dialog
 class UIModeSelector : public QDialog
 {
+    Q_OBJECT
+
 public:
     UIModeSelector(QWidget *parent = nullptr) : QDialog(parent)
     {
