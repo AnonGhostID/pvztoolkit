@@ -132,7 +132,6 @@ jobs:
           target: 'desktop'
           arch: 'win32_msvc2019'
           cache: true
-          modules: 'qtbase'
 
       - name: Configure pvztoolkit (Qt)
         run: |
