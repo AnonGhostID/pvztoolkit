@@ -273,10 +273,6 @@ bool PvZ::GameOn()
     }
     else
     {
-        auto now = std::chrono::steady_clock::now();
-        if (now - last_find_attempt < std::chrono::milliseconds(200))
-            return false;
-        last_find_attempt = now;
         on = FindPvZ();
 #ifdef _DEBUG
         std::wcout << L"Game not opened normally, searching again: " << (on ? L"Found" : L"Not found") << std::endl;
