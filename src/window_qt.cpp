@@ -177,8 +177,9 @@ void QtWindow::createResourceTab()
     box_money = new QLabel("Money:", sunMoneyGroup);
     sunMoneyLayout->addWidget(box_money, 2, 0);
     input_money = new QSpinBox(sunMoneyGroup);
-    input_money->setRange(0, 999999);
-    input_money->setValue(80000);
+    input_money->setRange(0, 99999);
+    input_money->setSingleStep(100);
+    input_money->setValue(8000);
     sunMoneyLayout->addWidget(input_money, 2, 1);
     button_money = new QPushButton("Set", sunMoneyGroup);
     button_money->setMaximumWidth(80);
